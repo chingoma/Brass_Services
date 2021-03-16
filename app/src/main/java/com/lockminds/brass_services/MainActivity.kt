@@ -41,7 +41,6 @@ class MainActivity : BaseActivity() {
         setAdapter()
     }
 
-
     override fun onResume() {
         super.onResume()
         val preference = applicationContext?.getSharedPreferences(Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
@@ -89,7 +88,6 @@ class MainActivity : BaseActivity() {
                 Constants.PREFERENCE_KEY,
                 Context.MODE_PRIVATE
         )
-
 
 
         binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -143,9 +141,6 @@ class MainActivity : BaseActivity() {
                         }
                     })
         }
-
-
     }
-
 
 }

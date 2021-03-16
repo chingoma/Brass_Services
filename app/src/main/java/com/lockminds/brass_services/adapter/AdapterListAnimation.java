@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lockminds.brass_services.R;
 import com.lockminds.brass_services.model.Lot;
 import com.lockminds.brass_services.utils.ItemAnimation;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +27,6 @@ public class AdapterListAnimation extends RecyclerView.Adapter<RecyclerView.View
     private Context ctx;
     private OnItemClickListener mOnItemClickListener;
     private int animation_type = 0;
-
 
 
     @Override
@@ -77,7 +79,7 @@ public class AdapterListAnimation extends RecyclerView.Adapter<RecyclerView.View
         this.animation_type = animation_type;
     }
 
-    public class OriginalViewHolder extends RecyclerView.ViewHolder {
+    public static class OriginalViewHolder extends RecyclerView.ViewHolder {
         public TextView lot_no,lot_source;
         public View lyt_parent;
 
@@ -89,6 +91,7 @@ public class AdapterListAnimation extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    @NotNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder vh;
