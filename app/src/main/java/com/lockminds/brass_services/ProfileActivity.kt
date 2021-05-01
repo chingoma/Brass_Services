@@ -48,6 +48,9 @@ class ProfileActivity : BaseActivity() {
         binding = ActivityProfileBinding.inflate(layoutInflater)
         val view: View = binding.root
         setContentView(view)
+
+        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
+        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
         initComponents()
         initInformation()
     }

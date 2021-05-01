@@ -69,6 +69,16 @@ public class Tools {
         }
     }
 
+    public static void displayImage(Context ctx, ImageView img, String url) {
+        Glide.with(ctx)
+                .load(APIURLs.STORAGE+url) // image url
+                .placeholder(R.drawable.placeholder) // any placeholder to load at start
+                .error(R.drawable.placeholder)  // any image in case of error
+                .centerCrop()
+                .into(img);  // imageview object
+
+    }
+
     public static void displayImageServices(Context ctx, ImageView img, String url) {
 
         Glide.with(ctx)

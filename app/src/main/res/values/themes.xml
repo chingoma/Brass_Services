@@ -12,7 +12,7 @@
         <item name="colorSecondary">@color/colorOnPrimary</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
         <item name="colorOnSecondary">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorOnPrimary</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:actionModeBackground">@color/colorBackground</item>
         <item name="android:dialogTheme">@style/Dialog.Theme</item>

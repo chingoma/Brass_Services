@@ -1,12 +1,12 @@
 package com.lockminds.brass_services.model;
 
-public class Destinations {
+public class Destination {
     String name, id;
 
-    public Destinations() {
+    public Destination() {
     }
 
-    public Destinations(String name, String id) {
+    public Destination(String name, String id) {
         this.name = name;
         this.id = id;
     }

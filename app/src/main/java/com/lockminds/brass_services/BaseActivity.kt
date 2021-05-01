@@ -29,6 +29,8 @@ open class BaseActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         Tools.setSystemBarLight(this)
         MyIp = Tools.getLocalIpAddress()
         Tools.NetPolicy()
+        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
+        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
     }
 
     override fun onResume() {

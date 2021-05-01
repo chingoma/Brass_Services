@@ -34,53 +34,61 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_xlarge" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Username"
-                android:textAlignment="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/blue_grey_500"
-                android:textStyle="bold" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/username"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="-4dp"
-                android:layout_marginRight="-4dp"
-                android:inputType="textEmailAddress"
-                android:maxLength="50"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/blue_grey_300"
-                android:theme="@style/EditText.Grey" />
+                android:layout_height="55dp"
+                app:hintTextColor="@color/colorOnPrimary"
+                app:placeholderTextColor="@color/colorOnPrimary"
+                app:helperTextTextColor="@color/colorOnPrimary"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:textColorHint="@color/colorAccent"
+                app:boxStrokeColor="@color/colorAccent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/username"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Your email"
+                    android:inputType="textEmailAddress"
+                    android:maxLength="50"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:singleLine="true"
+                    android:textColor="@color/blue_grey_300" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_mlarge" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Password"
-                android:textAlignment="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/blue_grey_500"
-                android:textStyle="bold" />
+            <com.google.android.material.textfield.TextInputLayout
+                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                app:hintTextColor="@color/colorOnPrimary"
+                app:placeholderTextColor="@color/colorOnPrimary"
+                app:helperTextTextColor="@color/colorOnPrimary"
+                android:layout_marginTop="@dimen/spacing_large"
+                android:textColorHint="@color/colorAccent"
+                app:boxStrokeColor="@color/colorAccent"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/colorAccent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="-4dp"
-                android:layout_marginRight="-4dp"
+                android:layout_height="match_parent"
                 android:inputType="textPassword"
+                android:padding="0dp"
                 android:maxLength="50"
+                android:hint="Your password"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/blue_grey_300"
-                android:theme="@style/EditText.Grey" />
+                android:textColor="@color/blue_grey_300" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <View
                 android:layout_width="0dp"
@@ -91,16 +99,17 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/spacing_large" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
+                android:textStyle="bold"
+                android:backgroundTint="@color/colorOnPrimary"
                 android:id="@+id/login_btn"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:layout_marginLeft="-4dp"
                 android:layout_marginRight="-4dp"
-                android:background="@drawable/btn_rounded_primary"
-                android:text="Login"
+                android:text="Sign In"
                 android:textAllCaps="false"
-                android:textColor="@color/blue_grey_300" />
+                android:textColor="@color/colorPrimary" />
 
         </LinearLayout>
 

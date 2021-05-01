@@ -33,6 +33,8 @@ class Constants{
         @JvmField val POLICY_URL = "policy_url"
         @JvmField val CHANGE_DETAILS = "change_details"
         @JvmField val CHANGE_PICTURE = "change_picture"
+        const val FCM_TOKEN = "fcm_token"
+        const val INTENT_PARAM_1 = "intent_param_1"
     }
 
 }

@@ -9,6 +9,7 @@ class APIURLs{
         @JvmField val PRODUCTS_MEDIA_URL = "https://portal.zaidi.co.tz/uploads/products_images/"
 
         @JvmField val BASE_URL = "https://brasservices.co.tz/api/"
+        @JvmField val STORAGE = "https://brasservices.co.tz/storage/"
 
         @JvmField val ALL_ORDERS_URL = BASE_URL + "orders/get_orders"
 

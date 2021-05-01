@@ -43,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
         val view: View = binding.root
         setContentView(view)
         Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
+        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
         binding.loginBtn.setOnClickListener {
             attemptLogin()
         }

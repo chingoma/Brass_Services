@@ -1,12 +1,12 @@
 package com.lockminds.brass_services.model;
 
-public class Lot {
+public class Lots {
     String lot_no, haulier, driver,destination,escorter,horse,source;
 
-    public Lot() {
+    public Lots() {
     }
 
-    public Lot(String lot_no, String haulier, String driver, String destination, String escorter, String horse, String source) {
+    public Lots(String lot_no, String haulier, String driver, String destination, String escorter, String horse, String source) {
         this.lot_no = lot_no;
         this.haulier = haulier;
         this.driver = driver;

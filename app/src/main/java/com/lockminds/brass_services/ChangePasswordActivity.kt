@@ -30,6 +30,8 @@ class ChangePasswordActivity : AppCompatActivity() {
         binding = ActivityChangePasswordBinding.inflate(layoutInflater)
         val view: View = binding.root
         setContentView(view)
+        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
+        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
         initComponents()
     }
 

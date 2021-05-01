@@ -173,6 +173,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/privacy_policy"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/spacing_xxxlarge"
@@ -205,6 +206,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:id="@+id/about_team"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/spacing_xxxlarge"
