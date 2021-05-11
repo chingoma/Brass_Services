@@ -7,6 +7,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidnetworking.AndroidNetworking
@@ -51,9 +53,11 @@ class MainActivity : BaseActivity() {
         Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
         sessionManager = SessionManager(applicationContext)
         initComponent()
+        initNavigationMenu()
         binding.lytNoConnection.isVisible = true
         setAdapter()
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -78,16 +82,18 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar!!.title = null
         supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
+
         binding.toolbar.title = sessionManager.getName()
         binding.toolbar.subtitle = sessionManager.getEmail()
+        binding.name.text = sessionManager.getName()
+        binding.email.text = sessionManager.getEmail()
 
         Glide
             .with(applicationContext)
             .load(sessionManager.getPhotoUrl())
             .centerCrop()
             .placeholder(R.mipmap.ic_launcher_round)
-            .into(binding.image)
+            .into(binding.profileImage)
 
         binding.lotQty.setOnClickListener {
             val intent = Intent(this@MainActivity, LotsActivity::class.java)
@@ -99,6 +105,26 @@ class MainActivity : BaseActivity() {
             startActivity(intent)
         }
 
+    }
+
+    private fun initNavigationMenu() {
+        val nav_view = binding.navView
+        val drawer = binding.drawerLayout
+        val toggle: ActionBarDrawerToggle = object : ActionBarDrawerToggle(
+            this,
+            drawer,
+            binding.toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        ) {
+        }
+
+        drawer.addDrawerListener(toggle)
+
+        // open/close drawer at start
+        binding.navIcon.setOnClickListener{
+            drawer.openDrawer(GravityCompat.START)
+        }
     }
 
     private fun setAdapter() {

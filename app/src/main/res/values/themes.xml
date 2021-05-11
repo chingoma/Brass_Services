@@ -1,5 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
+    <style name="Theme.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorSecondaryVariant</item>
+        <item name="colorPrimaryDark">@color/colorSecondaryVariant</item>
+        <item name="backgroundColor">@color/colorSecondaryVariant</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+    </style>
+
     <style name="Theme.BrassServices" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/colorPrimaryDark</item>
@@ -7,6 +15,7 @@
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="android:textColorPrimary">@color/colorPrimaryText</item>
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <!-- Secondary brand color. -->
 
         <item name="colorSecondary">@color/colorOnPrimary</item>

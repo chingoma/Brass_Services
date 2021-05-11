@@ -114,31 +114,39 @@ class FCMService : FirebaseMessagingService() {
      * @param token The new token.
      */
     private fun sendRegistrationToServer(token: String?) {
-        val preference = applicationContext?.getSharedPreferences(Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
-        if (preference != null) {
-            AndroidNetworking.post(APIURLs.BASE_URL + "user/update_fcm_token")
-                .addBodyParameter("fcm_token", token)
-                .addHeaders("accept", "application/json")
-                .setPriority(Priority.HIGH)
-                .addHeaders("Authorization", "Bearer " + preference.getString(Constants.LOGIN_TOKEN, "false"))
-                .build()
-                .getAsParsed(
-                    object : TypeToken<Response?>() {},
-                    object : ParsedRequestListener<Response> {
+        val preference = applicationContext?.getSharedPreferences(
+            Constants.PREFERENCE_KEY,
+            Context.MODE_PRIVATE
+        )
+            ?: return
 
-                        override fun onResponse(response: Response) {
-                            if (response.getStatus()) {
+        with(preference.edit()) {
+            putString(Constants.FCM_TOKEN, token)
+            apply()
+        }
 
-                            } else {
+        AndroidNetworking.post(APIURLs.BASE_URL + "user/update_fcm_token")
+            .addBodyParameter("fcm_token", token)
+            .addHeaders("accept", "application/json")
+            .setPriority(Priority.HIGH)
+            .addHeaders("Authorization", "Bearer " + preference.getString(Constants.LOGIN_TOKEN, "false"))
+            .build()
+            .getAsParsed(
+                object : TypeToken<Response?>() {},
+                object : ParsedRequestListener<Response> {
 
-                            }
+                    override fun onResponse(response: Response) {
+                        if (response.getStatus()) {
+
+                        } else {
 
                         }
 
-                        override fun onError(anError: ANError) { }
+                    }
 
-                    })
-        }
+                    override fun onError(anError: ANError) { }
+
+                })
     }
 
     /**
