@@ -28,6 +28,7 @@ class App: Application() {
     val checkPointHistory by lazy { CheckPointHistoryRepository(database.checkPointHistoryDao()) }
     val accidents by lazy { AccidentRepository(database.accidentDao()) }
     val accidentGallery by lazy { AccidentGalleryRepository(database.accidentGalleryDao()) }
+    val offices by lazy { OfficeRepository(database.officeDao()) }
 
     override fun attachBaseContext(context: Context?) {
         super.attachBaseContext(context)

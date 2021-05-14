@@ -8,7 +8,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,7 +18,6 @@ import androidx.core.view.isVisible
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
-import com.androidnetworking.interfaces.JSONObjectRequestListener
 import com.androidnetworking.interfaces.ParsedRequestListener
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -32,10 +30,8 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.lockminds.brass_services.databinding.ActivityProfileBinding
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
-import org.json.JSONObject
 import java.io.File
 
 
@@ -68,6 +64,7 @@ class ProfileActivity : BaseActivity() {
                 .into(binding.image)
         }
     }
+
     private fun initComponents() {
         binding.toolbar.navigationIcon = getDrawable(R.drawable.ic_back)
         setSupportActionBar(binding.toolbar)
@@ -80,7 +77,7 @@ class ProfileActivity : BaseActivity() {
                     Constants.PREFERENCE_KEY,
                     Context.MODE_PRIVATE
             )
-            preference?.edit()?.clear()?.commit()
+            preference?.edit()?.clear()?.apply()
             val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
             startActivity(intent)
             finish()
@@ -110,8 +107,7 @@ class ProfileActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-
-    fun initInformation(){
+    private fun initInformation(){
         val preference = applicationContext?.getSharedPreferences(
                 Constants.PREFERENCE_KEY,
                 Context.MODE_PRIVATE
@@ -180,7 +176,6 @@ class ProfileActivity : BaseActivity() {
         }
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -208,7 +203,8 @@ class ProfileActivity : BaseActivity() {
                                             binding.spinKit.visibility = View.GONE
                                             if (response.getStatus()) {
 
-                                                val preference = applicationContext?.getSharedPreferences(Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
+                                                val preference = applicationContext?.getSharedPreferences(
+                                                    Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
                                                         ?: return
 
                                                 with(preference.edit()) {

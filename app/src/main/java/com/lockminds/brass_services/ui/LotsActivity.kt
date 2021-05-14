@@ -27,17 +27,13 @@ class LotsActivity : BaseActivity() {
     private val lotsViewModel by viewModels<LotsViewModel> {
         LotsViewModelFactory((application as App).lotRepo)
     }
-    lateinit var sessionManager: SessionManager
+
     private lateinit var binding: ActivityLotsBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLotsBinding.inflate(layoutInflater)
         val view:View = binding.root
         setContentView(view)
-
-        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
-        sessionManager = SessionManager(applicationContext)
         initComponent()
         binding.lytNoConnection.isVisible = true
         setAdapter()

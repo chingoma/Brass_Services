@@ -23,7 +23,6 @@ import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.ParsedRequestListener
 import com.bumptech.glide.Glide
-import com.github.ybq.android.spinkit.SpinKitView
 import com.google.gson.reflect.TypeToken
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -40,12 +39,11 @@ import com.lockminds.brass_services.viewmodel.AccidentGalleryViewModel
 import com.lockminds.brass_services.viewmodel.AccidentGalleryViewModelFactory
 import com.lockminds.brass_services.widget.SpacingItemDecoration
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants
+import com.lockminds.brass_services.Constants
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 import java.io.File
 
 class AccidentActivity : BaseActivity() {
@@ -57,16 +55,12 @@ class AccidentActivity : BaseActivity() {
     lateinit var binding: ActivityAccidentBinding
     private lateinit var accidentId: String
     private lateinit var accident: Accident
-    private lateinit var sessionManager: SessionManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAccidentBinding.inflate(layoutInflater)
         val view: View = binding.root
         setContentView(view)
 
-        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
-        sessionManager = SessionManager(applicationContext)
         accidentId =  intent.getStringExtra(Constants.INTENT_PARAM_1)!!
         initComponents()
         GlobalScope.launch {

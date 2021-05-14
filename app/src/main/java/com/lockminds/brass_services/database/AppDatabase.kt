@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.lockminds.brass_services.database.daos.*
 import com.lockminds.brass_services.model.*
@@ -13,17 +14,36 @@ import kotlinx.coroutines.launch
 @Database(entities = [
     Lot::class,CheckPoint::class,
     CheckPointActions::class,CheckPointHistory::class,
-    Accident::class,AccidentGallery::class], version = 1, exportSchema = false)
+    Accident::class,AccidentGallery::class, Office::class], version = 3, exportSchema = true)
+
  abstract class AppDatabase: RoomDatabase() {
 
     abstract fun checkPointDao(): CheckPointDao
     abstract fun checkPointHistoryDao(): CheckPointHistoryDao
     abstract fun lotDao(): LotDao
+    abstract fun officeDao(): OfficesDao
     abstract fun accidentDao(): AccidentDao
     abstract fun accidentGalleryDao(): AccidentGalleryDao
     abstract fun checkPointActionDao(): CheckPointActionDao
 
+
+
+
     companion object{
+
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE `offices` (`id` LONG, `team_id` TEXT,`name` TEXT, `latitude` TEXT, `longitude` TEXT, `created_at` TEXT, `deleted_at` TEXT, `updated_at` TEXT, `synced` TEXT," +
+                        "PRIMARY KEY(`id`))")
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE offices ADD COLUMN attendance TEXT")
+            }
+        }
+
 
         // Singleton prevents multiple instances of database opening at the same time.
         @Volatile
@@ -39,6 +59,7 @@ import kotlinx.coroutines.launch
                     AppDatabase::class.java,
                     "com.lockminds.brass_services_database"
                 ).addCallback(AppDatabaseCallback(scope))
+                    .addMigrations(MIGRATION_1_2,MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 // return instance
@@ -56,6 +77,7 @@ import kotlinx.coroutines.launch
             Room.databaseBuilder(context.applicationContext,
                 AppDatabase::class.java, "com.lockminds.brass_services_database")
                 .fallbackToDestructiveMigration()
+                .addMigrations(MIGRATION_1_2,MIGRATION_2_3)
                 .build()
     }
 

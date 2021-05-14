@@ -20,7 +20,6 @@ import com.google.gson.reflect.TypeToken
 import com.lockminds.brass_services.databinding.ActivityChangePasswordBinding
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants
 
 class ChangePasswordActivity : AppCompatActivity() {
     lateinit var binding: ActivityChangePasswordBinding

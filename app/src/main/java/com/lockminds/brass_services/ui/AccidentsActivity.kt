@@ -32,7 +32,6 @@ import java.util.*
 class AccidentsActivity : BaseActivity() {
 
     lateinit var binding: ActivityAccidentsBinding
-    lateinit var sessionManager: SessionManager
 
     private val accidentsViewModel by viewModels<AccidentViewModel> {
         AccidentViewModelFactory((application as App).accidents)
@@ -52,10 +51,6 @@ class AccidentsActivity : BaseActivity() {
         binding = ActivityAccidentsBinding.inflate(layoutInflater)
         val view: View  = binding.root
         setContentView(view)
-
-        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
-        sessionManager = SessionManager(applicationContext)
         initComponent()
         binding.lytNoConnection.isVisible = true
         setAdapter()

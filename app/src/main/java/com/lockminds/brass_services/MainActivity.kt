@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 class MainActivity : BaseActivity() {
 
     lateinit var binding: ActivityMainBinding
-    lateinit var sessionManager: SessionManager
 
     private val lotsViewModel by viewModels<LotsViewModel> {
         LotsViewModelFactory((application as App).lotRepo)
@@ -49,9 +48,6 @@ class MainActivity : BaseActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view: View  = binding.root
         setContentView(view)
-        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
-        sessionManager = SessionManager(applicationContext)
         initComponent()
         initNavigationMenu()
         binding.lytNoConnection.isVisible = true
@@ -64,6 +60,7 @@ class MainActivity : BaseActivity() {
         syncAccidents()
         syncLots()
     }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         Tools.changeMenuIconColor(menu, resources.getColor(R.color.colorOnPrimary))
@@ -85,15 +82,7 @@ class MainActivity : BaseActivity() {
 
         binding.toolbar.title = sessionManager.getName()
         binding.toolbar.subtitle = sessionManager.getEmail()
-        binding.name.text = sessionManager.getName()
-        binding.email.text = sessionManager.getEmail()
 
-        Glide
-            .with(applicationContext)
-            .load(sessionManager.getPhotoUrl())
-            .centerCrop()
-            .placeholder(R.mipmap.ic_launcher_round)
-            .into(binding.profileImage)
 
         binding.lotQty.setOnClickListener {
             val intent = Intent(this@MainActivity, LotsActivity::class.java)
@@ -108,7 +97,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initNavigationMenu() {
-        val nav_view = binding.navView
         val drawer = binding.drawerLayout
         val toggle: ActionBarDrawerToggle = object : ActionBarDrawerToggle(
             this,

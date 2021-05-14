@@ -16,22 +16,22 @@ import com.google.gson.reflect.TypeToken
 import com.lockminds.brass_services.databinding.ActivityLoginBinding
 import com.lockminds.brass_services.reponses.LoginResponse
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants.Companion.LOGIN_STATUS
-import com.lockminds.libs.constants.Constants.Companion.LOGIN_TOKEN
-import com.lockminds.libs.constants.Constants.Companion.PREFERENCE_KEY
-import com.lockminds.libs.constants.Constants.Companion.USER_ID
+import com.lockminds.brass_services.Constants.Companion.LOGIN_STATUS
+import com.lockminds.brass_services.Constants.Companion.LOGIN_TOKEN
+import com.lockminds.brass_services.Constants.Companion.PREFERENCE_KEY
+import com.lockminds.brass_services.Constants.Companion.USER_ID
 import android.provider.Settings.Secure
-import com.lockminds.libs.constants.Constants.Companion.CHANGE_DETAILS
-import com.lockminds.libs.constants.Constants.Companion.CHANGE_PICTURE
-import com.lockminds.libs.constants.Constants.Companion.EMAIL
-import com.lockminds.libs.constants.Constants.Companion.NAME
-import com.lockminds.libs.constants.Constants.Companion.PHONE_NUMBER
-import com.lockminds.libs.constants.Constants.Companion.PHOTO_URL
-import com.lockminds.libs.constants.Constants.Companion.POLICY_URL
-import com.lockminds.libs.constants.Constants.Companion.TEAM_ADDRESS
-import com.lockminds.libs.constants.Constants.Companion.TEAM_EMAIL
-import com.lockminds.libs.constants.Constants.Companion.TEAM_NAME
-import com.lockminds.libs.constants.Constants.Companion.TEAM_PHONE
+import com.lockminds.brass_services.Constants.Companion.CHANGE_DETAILS
+import com.lockminds.brass_services.Constants.Companion.CHANGE_PICTURE
+import com.lockminds.brass_services.Constants.Companion.EMAIL
+import com.lockminds.brass_services.Constants.Companion.NAME
+import com.lockminds.brass_services.Constants.Companion.PHONE_NUMBER
+import com.lockminds.brass_services.Constants.Companion.PHOTO_URL
+import com.lockminds.brass_services.Constants.Companion.POLICY_URL
+import com.lockminds.brass_services.Constants.Companion.TEAM_ADDRESS
+import com.lockminds.brass_services.Constants.Companion.TEAM_EMAIL
+import com.lockminds.brass_services.Constants.Companion.TEAM_NAME
+import com.lockminds.brass_services.Constants.Companion.TEAM_PHONE
 
 
 class LoginActivity : AppCompatActivity() {

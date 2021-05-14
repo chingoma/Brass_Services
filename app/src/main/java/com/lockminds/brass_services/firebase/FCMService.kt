@@ -23,7 +23,7 @@ import com.lockminds.brass_services.R
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.brass_services.worker.AppWorker
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants
+import com.lockminds.brass_services.Constants
 
 class FCMService : FirebaseMessagingService() {
 

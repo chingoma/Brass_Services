@@ -19,7 +19,6 @@ import com.google.gson.reflect.TypeToken
 import com.lockminds.brass_services.databinding.ActivityUpdateProfileBinding
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants
 
 class UpdateProfileActivity : AppCompatActivity() {
 
@@ -136,7 +135,8 @@ class UpdateProfileActivity : AppCompatActivity() {
                                 binding.spinKit.visibility = View.GONE
                                 if (response.getStatus()) {
 
-                                    val preference = applicationContext?.getSharedPreferences(Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
+                                    val preference = applicationContext?.getSharedPreferences(
+                                        Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
                                         ?: return
 
                                     with(preference.edit()) {

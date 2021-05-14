@@ -28,7 +28,7 @@ import com.lockminds.brass_services.reponses.Response
 import com.lockminds.brass_services.ui.AccidentsActivity
 import com.lockminds.brass_services.viewmodel.*
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.libs.constants.Constants.Companion.INTENT_PARAM_1
+import com.lockminds.brass_services.Constants.Companion.INTENT_PARAM_1
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.*
@@ -37,7 +37,6 @@ class LotDetailsActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLotDetailsBinding
     private lateinit var lot: Lot
-    private lateinit var sessionManager: SessionManager
     private lateinit var actionsSpinnerAdapter: ActionsSpinnerAdapter
     private lateinit var checkPointSpinnerAdapter: CheckPointSpinnerAdapter
     private var actionJob: Boolean = false
@@ -69,9 +68,6 @@ class LotDetailsActivity : BaseActivity() {
         val view: View = binding.root
         setContentView(view)
 
-        Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
-        sessionManager = SessionManager(applicationContext)
         lot = intent.getParcelableExtra(INTENT_PARAM_1)!!
         binding.toolbar.navigationIcon = getDrawable(R.drawable.ic_back)
         setSupportActionBar(binding.toolbar)
