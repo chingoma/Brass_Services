@@ -8,6 +8,14 @@
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="dialogs" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">@color/colorSurface</item>
+        <item name="android:textColor">@color/colorOnPrimary</item>
+        <item name="itemTextColor">@color/colorOnPrimary</item>
+    </style>
+
+
+
     <style name="Theme.BrassServices" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/colorPrimaryDark</item>
@@ -29,6 +37,15 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="materialCalendarTheme">@style/ThemeOverlay.App.DatePicker</item>
+    </style>
+
+    <style name="ThemeOverlay.App.DatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/colorOnPrimary</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <!-- Customize text field of the text input mode. -->
     </style>
 
 <style name="AppTheme" parent="Theme.BrashServices" />
@@ -123,11 +140,20 @@
     <item name="colorAccent">@color/colorAccent</item>
 </style>
 
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">cut</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerSize">16dp</item>
+    </style>
+
 <!--Theme for date picker dialog-->
 <style name="DatePickerThemeLight" parent="Theme.AppCompat.Light.Dialog.Alert">
-    <item name="colorPrimary">@color/colorPrimary</item>
-    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-    <item name="colorAccent">@color/colorPrimary</item>
+    <item name="android:textColorPrimary">@color/colorOnPrimary</item>
+    <item name="colorPrimary">@color/colorOnPrimary</item>
+    <item name="colorPrimaryDark">@color/colorOnPrimary</item>
+    <item name="colorAccent">@color/colorOnPrimary</item>
 </style>
 
 <!--Theme for time picker dialog-->

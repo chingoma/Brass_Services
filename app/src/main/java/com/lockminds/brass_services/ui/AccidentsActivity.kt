@@ -7,7 +7,9 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidnetworking.AndroidNetworking
@@ -54,6 +56,7 @@ class AccidentsActivity : BaseActivity() {
         initComponent()
         binding.lytNoConnection.isVisible = true
         setAdapter()
+        initNavigationMenu()
     }
 
     override fun onResume() {
@@ -79,23 +82,33 @@ class AccidentsActivity : BaseActivity() {
         supportActionBar!!.title = null
         supportActionBar!!.setDisplayHomeAsUpEnabled(false)
         Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        binding.toolbar.title = sessionManager.getName()
-        binding.toolbar.subtitle = "Accidents"
-
-        Glide
-            .with(applicationContext)
-            .load(sessionManager.getPhotoUrl())
-            .centerCrop()
-            .placeholder(R.mipmap.ic_launcher_round)
-            .into(binding.image)
-
+        binding.toolbar.title = "Accidents"
+        binding.toolbar.subtitle = "Accidents History"
 
         binding.reportAccident.setOnClickListener {
             showActionDialog()
         }
-
-
     }
+
+    private fun initNavigationMenu() {
+        val drawer = binding.drawerLayout
+        val toggle: ActionBarDrawerToggle = object : ActionBarDrawerToggle(
+            this,
+            drawer,
+            binding.toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        ) {
+        }
+
+        drawer.addDrawerListener(toggle)
+
+        // open/close drawer at start
+        binding.navIcon.setOnClickListener{
+            drawer.openDrawer(GravityCompat.START)
+        }
+    }
+
 
     private fun setAdapter() {
 

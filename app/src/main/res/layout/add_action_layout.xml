@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:background="@color/colorSurface"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
@@ -36,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_90"
+                android:textColor="@color/colorOnPrimary"
                 android:textStyle="bold" />
 
             <TextView
@@ -46,7 +47,7 @@
                 android:layout_marginTop="@dimen/spacing_small"
                 android:gravity="center_vertical"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textColor="@color/grey_40" />
+                android:textColor="@color/colorOnPrimary" />
 
         </LinearLayout>
 
@@ -57,7 +58,7 @@
         android:layout_height="1px"
         android:layout_marginLeft="@dimen/spacing_large"
         android:layout_marginRight="@dimen/spacing_large"
-        android:background="@color/grey_10" />
+        android:textColor="@color/colorOnPrimary" />
 
     <LinearLayout
         android:layout_marginTop="@dimen/spacing_medium"
@@ -68,6 +69,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:textColor="@color/colorOnPrimary"
             android:layout_marginTop="@dimen/spacing_medium"
             android:text="Select check point"
             android:layout_width="match_parent"
@@ -85,6 +87,7 @@
             app:layout_constraintStart_toEndOf="@+id/textView2"
             app:layout_constraintTop_toTopOf="parent" />
         <TextView
+            android:textColor="@color/colorOnPrimary"
             android:layout_marginTop="16dp"
             android:text="Select action"
             android:layout_width="wrap_content"
@@ -110,10 +113,12 @@
         android:padding="@dimen/spacing_large">
 
         <EditText
+            android:textColorHint="@color/colorOnPrimary"
+            android:textColor="@color/colorOnPrimary"
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/grey_3"
+            android:background="@color/colorPrimary"
             android:gravity="top"
             android:hint="Write description ..."
             android:lines="4"

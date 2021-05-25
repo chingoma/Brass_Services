@@ -13,7 +13,6 @@
     <color name="colorBackground">#EEEEEE</color>
     <color name="colorPrimaryText">#F6C90E</color>
 
-
     <color name="colorNavigationItem">#004c40</color>
     <color name="colorPrimaryBackground">#f2f2f2</color>
 
@@ -25,9 +24,7 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#FF000000</color>
 
-
     <color name="transparent">@android:color/transparent</color>
-
 
     <color name="chat_row_color">#BDBDBD</color>
 

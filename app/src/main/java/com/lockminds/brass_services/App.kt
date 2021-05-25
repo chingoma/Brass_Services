@@ -27,8 +27,11 @@ class App: Application() {
     val checkPointsAction by lazy { CheckPointActionRepository(database.checkPointActionDao()) }
     val checkPointHistory by lazy { CheckPointHistoryRepository(database.checkPointHistoryDao()) }
     val accidents by lazy { AccidentRepository(database.accidentDao()) }
+    val attendances by lazy { AttendanceRepository(database.attendanceDao()) }
     val accidentGallery by lazy { AccidentGalleryRepository(database.accidentGalleryDao()) }
     val offices by lazy { OfficeRepository(database.officeDao()) }
+    val user by lazy { UserRepository(database.userDao()) }
+    val permissions by lazy { PermissionsRepository(database.permissionsDao()) }
 
     override fun attachBaseContext(context: Context?) {
         super.attachBaseContext(context)

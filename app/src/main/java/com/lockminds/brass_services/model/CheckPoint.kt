@@ -51,12 +51,12 @@ data class CheckPoint(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Lot> {
-        override fun createFromParcel(parcel: Parcel): Lot {
-            return Lot(parcel)
+    companion object CREATOR : Parcelable.Creator<CheckPoint> {
+        override fun createFromParcel(parcel: Parcel): CheckPoint {
+            return CheckPoint(parcel)
         }
 
-        override fun newArray(size: Int): Array<Lot?> {
+        override fun newArray(size: Int): Array<CheckPoint?> {
             return arrayOfNulls(size)
         }
     }

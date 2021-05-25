@@ -163,7 +163,7 @@
                         android:id="@+id/map_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_large"
+                        android:layout_marginTop="15dp"
                         app:cardBackgroundColor="#141B1E"
                         app:cardCornerRadius="@dimen/spacing_small"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -177,70 +177,123 @@
                             android:background="@color/colorSurface"
                             android:padding="@dimen/spacing_large"
                             android:textColor="@color/colorOnPrimary" />
+
                         <com.google.android.material.progressindicator.LinearProgressIndicator
                             android:id="@+id/progress_bar"
-                            android:layout_gravity="bottom"
                             android:layout_width="match_parent"
                             android:layout_height="3dp"
+                            android:layout_gravity="bottom"
                             android:indeterminate="true"
-                            android:progressTint="@color/colorOnPrimary"/>
+                            android:progressTint="@color/colorOnPrimary" />
 
-                        <fragment
-                            android:id="@+id/map"
-                            android:name="com.google.android.gms.maps.SupportMapFragment"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/status_card"
-                            tools:context=".ui.AttendanceActivity" />
                     </androidx.cardview.widget.CardView>
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:background="@color/colorSurface"
-                        android:id="@+id/recyclerView"
-                        android:layout_width="380dp"
-                        android:layout_height="469dp"
-                        android:layout_margin="@dimen/spacing_medium"
-                        android:fillViewport="true"
-                        android:scrollbars="vertical"
-                        android:scrollingCache="true"
+                    <androidx.cardview.widget.CardView
+
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="15dp"
+                        app:cardBackgroundColor="@color/colorSurface"
+                        app:cardCornerRadius="@dimen/spacing_small"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/map_container" />
+                        app:layout_constraintTop_toBottomOf="@+id/map_container">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <TextView
+                                android:padding="@dimen/card_radius_large"
+                                android:id="@+id/history"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Attendance History"
+                                android:textColor="@color/colorOnPrimary"
+                                app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recyclerView"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_marginHorizontal="@dimen/spacing_medium"
+                                android:fillViewport="true"
+                                android:scrollbars="none"
+                                android:scrollingCache="true"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/history" />
+
+                            <Button
+                                android:id="@+id/retry_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:text="@string/retry"
+                                app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.cardview.widget.CardView>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
-                    android:background="@color/colorSurface"
+                    android:visibility="gone"
                     android:id="@+id/lyt_no_connection"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_centerInParent="true"
                     android:gravity="center"
                     android:orientation="vertical">
+                    <androidx.cardview.widget.CardView
 
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:src="@drawable/img_no_internet_satellite" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/map_container"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="History"
-                        android:textColor="@color/colorOnPrimary"
-                        android:textStyle="bold" />
+                        app:cardBackgroundColor="@color/colorSurface"
+                        app:cardCornerRadius="@dimen/spacing_small">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true"
+                            android:gravity="center"
+                            android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_large"
-                        android:text="No history found. Come back later"
-                        android:gravity="center"
-                        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                        android:textColor="@color/colorOnPrimary" />
+                            <ImageView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:src="@drawable/img_no_internet_satellite" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="History"
+                                android:textColor="@color/colorOnPrimary"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/spacing_large"
+                                android:text="No history found. Come back later"
+                                android:gravity="center"
+                                android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                                android:textColor="@color/colorOnPrimary" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
 
 
                 </LinearLayout>
@@ -249,6 +302,17 @@
 
         </LinearLayout>
 
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:visibility="gone"
+            android:id="@+id/start_attendance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textStyle="bold"
+            android:layout_gravity="bottom|right"
+            android:contentDescription="Restart attendance actions"
+            android:text="Start Attendance"
+            app:icon="@drawable/ic_add"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!--navigation drawer menu-->

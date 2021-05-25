@@ -63,12 +63,12 @@ data class Office(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Lot> {
-        override fun createFromParcel(parcel: Parcel): Lot {
-            return Lot(parcel)
+    companion object CREATOR : Parcelable.Creator<Office> {
+        override fun createFromParcel(parcel: Parcel): Office {
+            return Office(parcel)
         }
 
-        override fun newArray(size: Int): Array<Lot?> {
+        override fun newArray(size: Int): Array<Office?> {
             return arrayOfNulls(size)
         }
     }

@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:background="@color/colorSurface"
     android:layout_height="match_parent">
 
 
@@ -47,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                android:textColor="@color/grey_90"
+                android:textColor="@color/colorOnPrimary"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -59,7 +60,7 @@
         android:layout_height="1px"
         android:layout_marginLeft="@dimen/spacing_large"
         android:layout_marginRight="@dimen/spacing_large"
-        android:background="@color/grey_10" />
+        android:background="@color/colorOnPrimary" />
 
     <LinearLayout
         android:layout_marginTop="@dimen/spacing_medium"
@@ -69,6 +70,8 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
         <DatePicker
+            style="@style/DatePickerThemeLight"
+            android:calendarTextColor="@color/colorOnPrimary"
             android:layout_marginTop="@dimen/spacing_medium"
             android:calendarViewShown="false"
             android:id="@+id/datePicker"
@@ -76,6 +79,7 @@
             android:layout_height="wrap_content"
             android:datePickerMode="spinner"/>
         <TextView
+            android:textColor="@color/colorOnPrimary"
             android:layout_marginTop="@dimen/spacing_medium"
             android:text="Select Lot"
             android:layout_width="match_parent"
@@ -108,8 +112,8 @@
             app:placeholderTextColor="@color/colorOnPrimary"
             app:helperTextTextColor="@color/colorOnPrimary"
             android:layout_marginTop="@dimen/spacing_large"
-            android:textColorHint="@color/colorAccent"
-            app:boxStrokeColor="@color/colorAccent">
+            android:textColorHint="@color/colorOnPrimary"
+            app:boxStrokeColor="@color/colorOnPrimary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/location"
@@ -121,7 +125,7 @@
                 android:maxLines="1"
                 android:padding="0dp"
                 android:singleLine="true"
-                android:textColor="@color/blue_grey_300" />
+                android:textColor="@color/colorOnPrimary" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -133,10 +137,11 @@
             app:placeholderTextColor="@color/colorOnPrimary"
             app:helperTextTextColor="@color/colorOnPrimary"
             android:layout_marginTop="@dimen/spacing_large"
-            android:textColorHint="@color/colorAccent"
-            app:boxStrokeColor="@color/colorAccent">
+            android:textColorHint="@color/colorOnPrimary"
+            app:boxStrokeColor="@color/colorOnPrimary">
         <EditText
-            android:textColor="@color/blue_grey_300"
+            android:textColorHint="@color/colorOnPrimary"
+            android:textColor="@color/colorOnPrimary"
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -166,6 +171,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:textColor="@color/colorOnPrimary"
             android:text="CANCEL" />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -174,6 +180,7 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnPrimary"
             android:gravity="center"
             android:text="SUBMIT" />
 

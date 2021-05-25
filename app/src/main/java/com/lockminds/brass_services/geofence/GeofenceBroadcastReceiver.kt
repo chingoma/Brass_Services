@@ -23,6 +23,7 @@ import android.util.Log
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.lockminds.brass_services.ui.AttendanceActivity.Companion.ACTION_GEOFENCE_EVENT
+import com.lockminds.brass_services.ui.AttendanceActivity.Companion.ACTION_GEOFENCE_EVENT_EXIT
 
 
 /*
@@ -46,6 +47,13 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 val errorMessage = errorMessage(context, geofencingEvent.errorCode)
                 Log.e(TAG, errorMessage)
                 return
+            }
+
+            if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+                Intent().also { intent ->
+                    intent.action = ACTION_GEOFENCE_EVENT_EXIT
+                    context.sendBroadcast(intent)
+                }
             }
 
             if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
@@ -76,6 +84,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 Intent().also { intent ->
                     intent.action = ACTION_GEOFENCE_EVENT
                     intent.putExtra("office",office.name)
+                    intent.putExtra("coordinate",office.id)
                     context.sendBroadcast(intent)
                 }
 

@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "f96500d8dec3a614c695302a06f5e29f",
+    "version": 1,
+    "identityHash": "7c5154ed67e2a1eb6c662585f38eeba8",
     "entities": [
       {
         "tableName": "lots",
@@ -310,7 +310,7 @@
       },
       {
         "tableName": "attendances",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `team_id` TEXT, `office_id` TEXT, `coordinate_id` TEXT, `user_id` TEXT, `supervisor_id` TEXT, `attendance_date` TEXT, `time_in` TEXT, `time_out` TEXT, `working_hours` TEXT, `status` TEXT, `extra_hours` TEXT, `overtime_status` TEXT, `in_office` TEXT, `created_at` TEXT, `updated_at` TEXT, `deleted_at` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `team_id` TEXT, `name` TEXT, `office_id` TEXT, `coordinate_id` TEXT, `user_id` TEXT, `supervisor_id` TEXT, `attendance_date` TEXT, `time_in` TEXT, `time_out` TEXT, `working_hours` TEXT, `status` TEXT, `extra_hours` TEXT, `overtime_status` TEXT, `in_office` TEXT, `created_at` TEXT, `updated_at` TEXT, `deleted_at` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -321,6 +321,12 @@
           {
             "fieldPath": "team_id",
             "columnName": "team_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -617,6 +623,154 @@
         "foreignKeys": []
       },
       {
+        "tableName": "users",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `user_id` TEXT, `name` TEXT, `email` TEXT, `phone_number` TEXT, `address` TEXT, `reg_number` TEXT, `change_details` TEXT, `fcm_token` TEXT, `change_picture` TEXT, `email_verified_at` TEXT, `timezone` TEXT, `current_team_id` TEXT, `profile_photo_path` TEXT, `created_at` TEXT, `updated_at` TEXT, `deleted_at` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "user_id",
+            "columnName": "user_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phone_number",
+            "columnName": "phone_number",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "reg_number",
+            "columnName": "reg_number",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "change_details",
+            "columnName": "change_details",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fcm_token",
+            "columnName": "fcm_token",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "change_picture",
+            "columnName": "change_picture",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "email_verified_at",
+            "columnName": "email_verified_at",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timezone",
+            "columnName": "timezone",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "current_team_id",
+            "columnName": "current_team_id",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "profile_photo_path",
+            "columnName": "profile_photo_path",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created_at",
+            "columnName": "created_at",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updated_at",
+            "columnName": "updated_at",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "deleted_at",
+            "columnName": "deleted_at",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "permissions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `escort` INTEGER, `receive` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "escort",
+            "columnName": "escort",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "receive",
+            "columnName": "receive",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
         "tableName": "accidents",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `team_id` TEXT, `lot_no` TEXT, `escorter_id` TEXT, `accident_date` TEXT, `driver` TEXT, `latitude` TEXT, `longitude` TEXT, `location` TEXT, `description` TEXT, `created_at` TEXT, `updated_at` TEXT, `deleted_at` TEXT, `synced` TEXT, PRIMARY KEY(`id`))",
         "fields": [
@@ -860,7 +1014,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f96500d8dec3a614c695302a06f5e29f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7c5154ed67e2a1eb6c662585f38eeba8')"
     ]
   }
 }

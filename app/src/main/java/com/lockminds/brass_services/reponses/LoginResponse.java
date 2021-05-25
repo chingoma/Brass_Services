@@ -1,13 +1,24 @@
 package com.lockminds.brass_services.reponses;
 
+import com.lockminds.brass_services.model.User;
+
 public class LoginResponse {
 
     Boolean status;
+    User user;
     String policy_url,message,id,name,token,photo_url,email,change_details,change_picture,phone_number,team_email,team_phone,team_name,team_address;
 
     public LoginResponse() {}
 
-    public LoginResponse(Boolean status,String policy_url,String team_address, String message, String id, String name, String token, String photo_url, String email, String change_details, String change_picture, String phone_number, String team_email, String team_phone, String team_name) {
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LoginResponse(User user, Boolean status, String policy_url, String team_address, String message, String id, String name, String token, String photo_url, String email, String change_details, String change_picture, String phone_number, String team_email, String team_phone, String team_name) {
         this.policy_url = policy_url;
         this.team_address = team_address;
         this.status = status;
@@ -23,6 +34,7 @@ public class LoginResponse {
         this.team_email = team_email;
         this.team_phone = team_phone;
         this.team_name = team_name;
+        this.user = user;
     }
 
     public String getPolicy_url() {

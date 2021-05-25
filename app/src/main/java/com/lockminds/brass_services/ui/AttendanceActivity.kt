@@ -6,7 +6,6 @@ import android.annotation.TargetApi
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -20,11 +19,14 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.ExperimentalPagingApi
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
@@ -33,42 +35,55 @@ import com.androidnetworking.interfaces.ParsedRequestListener
 import com.example.android.location.currentlocationkotlin.hasPermission
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.CircleOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.lockminds.brass_services.*
 import com.lockminds.brass_services.R
+import com.lockminds.brass_services.adapter.AttendancePagedAdapter
+import com.lockminds.brass_services.adapter.LoadStateAdapter
 import com.lockminds.brass_services.adapter.OfficeAdapter
 import com.lockminds.brass_services.databinding.ActivityAttendanceBinding
 import com.lockminds.brass_services.geofence.*
 import com.lockminds.brass_services.model.LandmarkDataObject
 import com.lockminds.brass_services.model.Office
+import com.lockminds.brass_services.reponses.Response
 import com.lockminds.brass_services.services.FetchAddressIntentService
+import com.lockminds.brass_services.viewmodel.AttendancePagedViewModel
 import com.lockminds.brass_services.viewmodel.OfficesViewModel
 import com.lockminds.brass_services.viewmodel.OfficesViewModelFactory
 import com.lockminds.libs.constants.APIURLs
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.*
 
-class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
+class AttendanceActivity : BaseActivity(){
 
-    private var mGeofenceList: ArrayList<Geofence>? = null
+    private lateinit var viewModel: AttendancePagedViewModel
+    private val adapter = AttendancePagedAdapter()
+    private var searchJob: Job? = null
+
+    @ExperimentalPagingApi
+    private fun search(query: String) {
+        // Make sure we cancel the previous job before creating a new one
+        searchJob?.cancel()
+        searchJob = lifecycleScope.launch {
+            viewModel.getItems(applicationContext,query).collectLatest {
+                adapter.submitData(it)
+            }
+        }
+    }
+
 
     private val officesViewModel by viewModels<OfficesViewModel> {
         OfficesViewModelFactory((application as App).offices)
     }
-    
+
+    private var mGeofenceList: ArrayList<Geofence>? = null
     private lateinit var geofencingClient: GeofencingClient
-    private lateinit var mMap: GoogleMap
     private val ADDRESS_REQUESTED_KEY = "address-request-pending"
     private val LOCATION_ADDRESS_KEY = "location-address"
     /**
@@ -81,6 +96,9 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
      * The formatted location address.
      */
     private var addressOutput = ""
+
+
+    private var coordinate = ""
 
     /**
      * Receiver registered with this activity to get the response from FetchAddressIntentService.
@@ -100,7 +118,15 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
     private val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent != null) {
-                enableActions(intent.getStringExtra("office").toString())
+                if(intent.action == ACTION_GEOFENCE_EVENT){
+                    enableActions(intent.getStringExtra("office").toString())
+                    coordinate = intent.getStringExtra("coordinate").toString()
+                }
+                if(intent.action == ACTION_GEOFENCE_EVENT_EXIT){
+                    disableControllers()
+                    coordinate = ""
+                }
+
             }
         }
     }
@@ -119,35 +145,122 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
 
     private lateinit var binding: ActivityAttendanceBinding
 
+    @ExperimentalPagingApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAttendanceBinding.inflate(layoutInflater)
         val view: View = binding.root
         setContentView(view)
+
+        viewModel = ViewModelProvider(this, Injection.attendancePagedViewModelFactory(this))
+            .get(AttendancePagedViewModel::class.java)
+
         resultReceiver = AddressResultReceiver(Handler())
         geofencingClient = LocationServices.getGeofencingClient(this)
 
-        // Create channel for notifications
         createChannel(this )
 
         initComponent()
         initNavigationMenu()
-        initMap()
-        updateValuesFromBundle(savedInstanceState)
-        // Empty list for storing geofences.
-
-        // Empty list for storing geofences.
+//        initMap()
+        //updateValuesFromBundle(savedInstanceState)
         mGeofenceList = ArrayList()
+        initAdapter()
 
     }
 
+    @ExperimentalPagingApi
+    private fun attemptCheckOut(){
+        if(coordinate.isEmpty()){
+            Toast.makeText(this@AttendanceActivity, resources.getText(R.string.coordinate_not_found,"coordinate not found"), Toast.LENGTH_SHORT).show()
+            return
+        }
 
-    private fun initMap() {
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        AndroidNetworking.post(APIURLs.BASE_URL + "check_out")
+            .addBodyParameter("coordinate",coordinate)
+            .addHeaders("accept", "application/json")
+            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
+            .setPriority(Priority.HIGH)
+            .build()
+            .getAsObject(Response::class.java, object : ParsedRequestListener<Response> {
+                override fun onResponse(response: Response) {
+                    val response: Response = response
+                    if(response.status.equals(true)){
+                        search(sessionManager.getUserId().toString())
+                    }
+                    Toast.makeText(this@AttendanceActivity, response.message, Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onError(anError: ANError) {
+                    Toast.makeText(this@AttendanceActivity, anError.errorBody, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            })
+
     }
 
+    @ExperimentalPagingApi
+    private fun attemptCheckIn(){
+        if(coordinate.isEmpty()){
+            Toast.makeText(this@AttendanceActivity, resources.getText(R.string.coordinate_not_found,"coordinate not found"), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        AndroidNetworking.post(APIURLs.BASE_URL + "check_in")
+            .addBodyParameter("coordinate",coordinate)
+            .addHeaders("accept", "application/json")
+            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
+            .setPriority(Priority.HIGH)
+            .build()
+            .getAsObject(Response::class.java, object : ParsedRequestListener<Response> {
+                override fun onResponse(response: Response) {
+                    val response: Response = response
+                    if(response.status.equals(true)){
+                        search(sessionManager.getUserId().toString())
+                    }
+                    Toast.makeText(this@AttendanceActivity, response.message, Toast.LENGTH_SHORT).show()
+                }
+
+                override fun onError(anError: ANError) {
+                    Toast.makeText(this@AttendanceActivity, anError.errorBody, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            })
+
+    }
+
+    @ExperimentalPagingApi
+    private fun initAdapter() {
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.setHasFixedSize(true)
+
+        binding.recyclerView.adapter = adapter.withLoadStateFooter(
+            footer = LoadStateAdapter { adapter.retry() }
+        )
+        adapter.addLoadStateListener { loadState ->
+            // Only show the list if refresh succeeds.
+            binding.recyclerView.isVisible = true
+            //loadState.source.refresh is LoadState.NotLoading
+            // Show loading spinner during initial load or refresh.
+            binding.progressBar.isVisible = loadState.source.refresh is LoadState.Loading
+            // Show the retry state if initial load or refresh fails.
+            binding.retryButton.isVisible = loadState.source.refresh is LoadState.Error
+
+            // Toast on any error, regardless of whether it came from RemoteMediator or PagingSource
+            val errorState = loadState.source.append as? LoadState.Error
+                ?: loadState.source.prepend as? LoadState.Error
+                ?: loadState.append as? LoadState.Error
+                ?: loadState.prepend as? LoadState.Error
+            errorState?.let {
+
+            }
+        }
+
+        search(sessionManager.getUserId().toString())
+
+    }
+
+    @ExperimentalPagingApi
     private fun initComponent() {
         setSupportActionBar(binding.toolbar)
         supportActionBar!!.title = null
@@ -155,11 +268,24 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
 
         binding.toolbar.title = "Attendance"
         binding.toolbar.subtitle = "check in or check out"
-        binding.status.text = Tools.fromHtml("Your location is <b>NOT ALLOWED</b>. Please go to lockmind\'s Office")
+        binding.status.text = Tools.fromHtml("Your location is <b>NOT ALLOWED</b>. Please go to Office")
         binding.currentLocation.text = Tools.fromHtml("Your current location is <b>UNKNOWN</b>")
+        binding.startAttendance.setOnClickListener {
+            finish()
+            overridePendingTransition(0, 0)
+            startActivity(intent)
+            overridePendingTransition(0, 0)
+        }
+
+        binding.checkIn.setOnClickListener {
+            checkInDialog()
+        }
+
+        binding.checkOut.setOnClickListener {
+            checkOutDialog()
+        }
 
     }
-
 
     private fun initNavigationMenu() {
         val drawer = binding.drawerLayout
@@ -233,10 +359,36 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
+    @ExperimentalPagingApi
+    private fun checkInDialog() {
+        val builder = AlertDialog.Builder(this,R.style.dialogs)
+        builder.setTitle("PERFORM CHECK IN ?")
+        builder.setMessage("Be carefully as you can not undo this action")
+        builder.setPositiveButton("CHECK IN",
+            DialogInterface.OnClickListener { _, i ->
+                    attemptCheckIn()
+            })
+        builder.setNegativeButton("NOT NOW", null)
+        builder.show()
+    }
+
+    @ExperimentalPagingApi
+    private fun checkOutDialog() {
+        val builder = AlertDialog.Builder(this, R.style.dialogs)
+        builder.setTitle("PERFORM CHECK OUT ?")
+        builder.setMessage("Be carefully as you can not undo this action")
+        builder.setPositiveButton("CHECK OUT",
+            DialogInterface.OnClickListener { _, i ->
+                attemptCheckOut()
+            })
+        builder.setNegativeButton("NOT NOW", null)
+        builder.show()
+    }
+
     private fun enableActions(office: String){
         //binding.currentLocation.isVisible = false
         binding.progressBar.isVisible = false
-        binding.status.text = Tools.fromHtml("You have reached <b>${office}</b>")
+        binding.status.text = Tools.fromHtml("You have arrived at <b>${office}</b>")
         binding.checkIn.isVisible = true
         binding.checkOut.isVisible = true
         binding.intro.isVisible = true
@@ -539,41 +691,6 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
         }
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
-        val circleOptions = CircleOptions()
-            .center(LatLng(-6.725586, 39.199425))
-            .radius(100.0) // In meters
-            .strokeWidth(5f)
-            .strokeColor(Color.argb(225, 255, 224, 179))
-            .fillColor(Color.argb(112, 255, 224, 179))
-            .clickable(true)
-
-        mMap.addCircle(circleOptions)
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-6.725586, 39.199425)
-        val marker = mMap.addMarker(
-            MarkerOptions()
-                .position(sydney)
-                .title("Lockmind\'s Office"))
-
-        marker?.showInfoWindow()
-
-        // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
-        val cameraPosition = CameraPosition.Builder()
-            .target(sydney) // Sets the center of the map to Mountain View
-            .zoom(18f)            // Sets the zoom
-            .bearing(90f)         // Sets the orientation of the camera to east
-            // .tilt(30f)            // Sets the tilt of the camera to 30 degrees
-            .build()              // Creates a CameraPosition from the builder
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
-        mMap.setOnCircleClickListener {
-            // Flip the r, g and b components of the circle's stroke color.
-            val strokeColor = it.strokeColor xor 0x00ffffff
-            it.strokeColor = strokeColor
-        }
-
-    }
 
     /**
      * Gets current location.
@@ -641,7 +758,9 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
 
     companion object {
         internal const val ACTION_GEOFENCE_EVENT =
-            "HuntMainActivity.treasureHunt.action.ACTION_GEOFENCE_EVENT"
+            "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT"
+        internal const val ACTION_GEOFENCE_EVENT_EXIT =
+            "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT_EXIT"
     }
 
     /**
@@ -678,10 +797,10 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
     private var _idleHandler: Handler = Handler()
     private var _idleRunnable = Runnable {
         //handle your IDLE state
-        binding.checkIn.isVisible = false
-        binding.checkOut.isVisible = false
-        binding.intro.isVisible = false
-        Toast.makeText(this@AttendanceActivity, "Time out ", Toast.LENGTH_LONG).show()
+        binding.checkIn.isVisible = true
+        binding.checkOut.isVisible = true
+        binding.intro.isVisible = true
+        binding.startAttendance.isVisible = false
     }
 
     override fun delayedIdle(delayMinutes: Long) {
@@ -691,8 +810,8 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
 
     private fun setAdapter() {
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.setHasFixedSize(true)
+//        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+//        binding.recyclerView.setHasFixedSize(true)
 
         val officesAdapter = OfficeAdapter(this) { offices -> officeOnClickNear(
             offices
@@ -713,7 +832,7 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
             }
         }
 
-        binding.recyclerView.adapter = officesAdapter
+       // binding.recyclerView.adapter = officesAdapter
 
     }
 
@@ -748,12 +867,14 @@ class AttendanceActivity : BaseActivity(), OnMapReadyCallback {
         binding.checkIn.isVisible = false
         binding.checkOut.isVisible = false
         binding.intro.isVisible = false
+        binding.startAttendance.isVisible = false
     }
 
     private fun enableControllers(){
         binding.checkIn.isVisible = true
         binding.checkOut.isVisible = true
         binding.intro.isVisible = true
+        binding.startAttendance.isVisible = false
     }
 
 }

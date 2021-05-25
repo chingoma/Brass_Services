@@ -78,12 +78,12 @@ data class Accident(
         return 0
     }
 
-    companion object CREATOR : Parcelable.Creator<Lot> {
-        override fun createFromParcel(parcel: Parcel): Lot {
-            return Lot(parcel)
+    companion object CREATOR : Parcelable.Creator<Accident> {
+        override fun createFromParcel(parcel: Parcel): Accident {
+            return Accident(parcel)
         }
 
-        override fun newArray(size: Int): Array<Lot?> {
+        override fun newArray(size: Int): Array<Accident?> {
             return arrayOfNulls(size)
         }
     }

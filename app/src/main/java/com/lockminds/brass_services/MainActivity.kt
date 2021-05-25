@@ -52,6 +52,20 @@ class MainActivity : BaseActivity() {
         initNavigationMenu()
         binding.lytNoConnection.isVisible = true
         setAdapter()
+        userViewModel.getUser(sessionManager.getUserId().toString()).observe(this){
+            it?.let {
+                binding.toolbar.title = it.name
+                binding.toolbar.subtitle = it.reg_number
+            }
+        }
+
+        permissionsViewModel.getPermissions(sessionManager.getUserId().toString()).observe(this){
+            it?.let {permissions ->
+                binding.lytNoConnection.isVisible = permissions.escort!! < 1
+                binding.container.isVisible = permissions.escort!! > 0
+                binding.intro.isVisible = permissions.escort!! > 0
+            }
+        }
     }
 
 
@@ -79,10 +93,6 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar!!.title = null
         supportActionBar!!.setDisplayHomeAsUpEnabled(false)
-
-        binding.toolbar.title = sessionManager.getName()
-        binding.toolbar.subtitle = sessionManager.getEmail()
-
 
         binding.lotQty.setOnClickListener {
             val intent = Intent(this@MainActivity, LotsActivity::class.java)

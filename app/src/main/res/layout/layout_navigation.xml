@@ -168,7 +168,8 @@
             android:layout_height="@dimen/spacing_middle" />
 
         <LinearLayout
-            android:id="@+id/settings"
+            android:visibility="gone"
+            android:id="@+id/accidents"
             android:layout_width="match_parent"
             android:layout_height="@dimen/spacing_xmlarge"
             android:background="?attr/selectableItemBackground"
@@ -182,7 +183,7 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                app:srcCompat="@drawable/settings"
+                app:srcCompat="@drawable/ic_baseline_line_weight_24"
                 app:tint="@color/grey_20" />
 
             <View
@@ -192,7 +193,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Settings"
+                android:text="Accidents"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="@color/grey_40"
                 app:fontFamily="sans-serif-medium" />

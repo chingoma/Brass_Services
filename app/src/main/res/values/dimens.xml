@@ -24,4 +24,5 @@
     <dimen name="card_radius_medium">6dp</dimen>
     <dimen name="card_radius_large">16dp</dimen>
     <dimen name="design_navigation_icon_size" tools:override="true">40dp</dimen>
+    <dimen name="error_text_size">24sp</dimen>
 </resources>

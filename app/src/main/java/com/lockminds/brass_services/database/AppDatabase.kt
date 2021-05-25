@@ -12,9 +12,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(entities = [
-    Lot::class,CheckPoint::class,
-    CheckPointActions::class,CheckPointHistory::class,
-    Accident::class,AccidentGallery::class, Office::class], version = 3, exportSchema = true)
+    Lot::class,CheckPoint::class,Attendance::class,AttendanceRemoteKeys::class,
+    CheckPointActions::class,CheckPointHistory::class,User::class,Permissions::class,
+    Accident::class,AccidentGallery::class, Office::class], version = 1, exportSchema = true)
 
  abstract class AppDatabase: RoomDatabase() {
 
@@ -25,8 +25,9 @@ import kotlinx.coroutines.launch
     abstract fun accidentDao(): AccidentDao
     abstract fun accidentGalleryDao(): AccidentGalleryDao
     abstract fun checkPointActionDao(): CheckPointActionDao
-
-
+    abstract fun attendanceDao(): AttendanceDao
+    abstract fun userDao(): UserDao
+    abstract fun permissionsDao(): PermissionDao
 
 
     companion object{
@@ -59,7 +60,7 @@ import kotlinx.coroutines.launch
                     AppDatabase::class.java,
                     "com.lockminds.brass_services_database"
                 ).addCallback(AppDatabaseCallback(scope))
-                    .addMigrations(MIGRATION_1_2,MIGRATION_2_3)
+//                    .addMigrations(MIGRATION_1_2,MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 // return instance
@@ -77,7 +78,7 @@ import kotlinx.coroutines.launch
             Room.databaseBuilder(context.applicationContext,
                 AppDatabase::class.java, "com.lockminds.brass_services_database")
                 .fallbackToDestructiveMigration()
-                .addMigrations(MIGRATION_1_2,MIGRATION_2_3)
+//                .addMigrations(MIGRATION_1_2,MIGRATION_2_3)
                 .build()
     }
 

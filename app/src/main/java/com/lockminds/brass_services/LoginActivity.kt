@@ -32,6 +32,8 @@ import com.lockminds.brass_services.Constants.Companion.TEAM_ADDRESS
 import com.lockminds.brass_services.Constants.Companion.TEAM_EMAIL
 import com.lockminds.brass_services.Constants.Companion.TEAM_NAME
 import com.lockminds.brass_services.Constants.Companion.TEAM_PHONE
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class LoginActivity : AppCompatActivity() {
@@ -116,7 +118,13 @@ class LoginActivity : AppCompatActivity() {
 
                             override fun onResponse(response: LoginResponse) {
                                 binding.spinKit.visibility = View.GONE
-                                if (response.getStatus()) {
+
+                                if (response.status) {
+
+                                GlobalScope.launch {
+                                    (application as App).user.syncUser(response.user.user_id.toString(),response.user)
+                                }
+
 
                                     val preference = applicationContext?.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE)
                                             ?: return
