@@ -99,9 +99,6 @@ class LotsActivity : BaseActivity() {
 
     private fun syncLots(){
         AndroidNetworking.get(APIURLs.BASE_URL + "lots/get_all_lots")
-            .setTag("lots")
-            .addHeaders("accept", "application/json")
-            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
             .setPriority(Priority.HIGH)
             .setPriority(Priority.LOW)
             .build()

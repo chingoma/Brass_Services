@@ -20,6 +20,7 @@ interface AttendanceService {
      */
     @GET("get_attendance")
     suspend fun getAttendance(
+        @Header("device") device: String,
         @Header("Authorization") token: String,
         @Query("q") query: String,
         @Query("page") page: Int,

@@ -114,9 +114,7 @@ class ChangePasswordActivity : AppCompatActivity() {
                         .addBodyParameter("old_password", binding.oldPassword.text.toString())
                         .addBodyParameter("new_password", binding.newPassword.text.toString())
                         .addBodyParameter("device_name",android_id)
-                        .addHeaders("accept", "application/json")
                         .setPriority(Priority.HIGH)
-                        .addHeaders("Authorization", "Bearer " + preference.getString(Constants.LOGIN_TOKEN, "false"))
                         .build()
                         .getAsParsed(
                                 object : TypeToken<Response?>() {},

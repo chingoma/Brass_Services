@@ -162,9 +162,6 @@ class LotDetailsActivity : BaseActivity() {
 
     private fun syncCheckpoints(){
         AndroidNetworking.get(APIURLs.BASE_URL + "get_check_points")
-                .setTag("lots")
-                .addHeaders("accept", "application/json")
-                .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                 .setPriority(Priority.HIGH)
                 .setPriority(Priority.LOW)
                 .build()
@@ -186,8 +183,6 @@ class LotDetailsActivity : BaseActivity() {
         AndroidNetworking.get(APIURLs.BASE_URL + "lots/check_point_history")
                 .setTag("lots")
                 .addQueryParameter("lot_no",lot.lot_no)
-                .addHeaders("accept", "application/json")
-                .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                 .setPriority(Priority.HIGH)
                 .setPriority(Priority.LOW)
                 .build()
@@ -207,9 +202,6 @@ class LotDetailsActivity : BaseActivity() {
 
     private fun syncCheckpointActions(){
         AndroidNetworking.get(APIURLs.BASE_URL + "get_check_point_actions")
-                .setTag("lots")
-                .addHeaders("accept", "application/json")
-                .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                 .setPriority(Priority.HIGH)
                 .setPriority(Priority.LOW)
                 .build()
@@ -308,8 +300,6 @@ class LotDetailsActivity : BaseActivity() {
                     .addBodyParameter("check_point", checkPointId)
                     .addBodyParameter("check_point_action", checkPointActionId)
                     .addBodyParameter("description", description.text.toString())
-                    .addHeaders("accept", "application/json")
-                    .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                     .setPriority(Priority.HIGH)
                     .build()
                     .getAsObject(
@@ -407,9 +397,6 @@ class LotDetailsActivity : BaseActivity() {
                     .addBodyParameter("lot", checkPointId)
                     .addBodyParameter("date", date)
                     .addBodyParameter("description", description.text.toString())
-                    .addBodyParameter("location", location.text.toString())
-                    .addHeaders("accept", "application/json")
-                    .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                     .setPriority(Priority.HIGH)
                     .build()
                     .getAsObject(

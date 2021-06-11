@@ -1,25 +1,40 @@
+/*
+ * Copyright (C) 2019 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.lockminds.brass_services.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.app.Dialog
 import android.app.PendingIntent
 import android.content.*
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.provider.Settings
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.appcompat.widget.AppCompatSpinner
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
@@ -35,22 +50,25 @@ import com.androidnetworking.interfaces.ParsedRequestListener
 import com.example.android.location.currentlocationkotlin.hasPermission
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.lockminds.brass_services.*
+import com.lockminds.brass_services.Constants.Companion.ACTION_GEOFENCE_EVENT
+import com.lockminds.brass_services.Constants.Companion.LOCKMINDS_ACTION_GEOFENCE_EVENT
+import com.lockminds.brass_services.Constants.Companion.LOCKMINDS_ACTION_GEOFENCE_EVENT_ENTERING
+import com.lockminds.brass_services.Constants.Companion.LOCKMINDS_ACTION_GEOFENCE_EVENT_EXIT
 import com.lockminds.brass_services.R
 import com.lockminds.brass_services.adapter.AttendancePagedAdapter
 import com.lockminds.brass_services.adapter.LoadStateAdapter
 import com.lockminds.brass_services.adapter.OfficeAdapter
 import com.lockminds.brass_services.databinding.ActivityAttendanceBinding
 import com.lockminds.brass_services.geofence.*
-import com.lockminds.brass_services.model.LandmarkDataObject
+import com.lockminds.brass_services.model.CurrentOffice
 import com.lockminds.brass_services.model.Office
 import com.lockminds.brass_services.reponses.Response
-import com.lockminds.brass_services.services.FetchAddressIntentService
 import com.lockminds.brass_services.viewmodel.AttendancePagedViewModel
+import com.lockminds.brass_services.viewmodel.CurrentOfficeViewModel
 import com.lockminds.brass_services.viewmodel.OfficesViewModel
 import com.lockminds.brass_services.viewmodel.OfficesViewModelFactory
 import com.lockminds.libs.constants.APIURLs
@@ -58,11 +76,30 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.*
 
-class AttendanceActivity : BaseActivity(){
+
+
+class AttendanceActivity : BaseActivity() {
+
+    private var receiver: BroadcastReceiver? = null
+
+    private lateinit var binding: ActivityAttendanceBinding
+    private lateinit var geofencingClient: GeofencingClient
+
+    private val runningQOrLater =
+        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
+
+    // A PendingIntent for the Broadcast Receiver that handles geofence transitions.
+    private val geofencePendingIntent: PendingIntent by lazy {
+        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
+        intent.action = ACTION_GEOFENCE_EVENT
+        // Use FLAG_UPDATE_CURRENT so that you get the same pending intent back when calling
+        // addGeofences() and removeGeofences().
+        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 
     private lateinit var viewModel: AttendancePagedViewModel
+    private lateinit var currentOfficeModel: CurrentOfficeViewModel
     private val adapter = AttendancePagedAdapter()
     private var searchJob: Job? = null
 
@@ -81,31 +118,6 @@ class AttendanceActivity : BaseActivity(){
     private val officesViewModel by viewModels<OfficesViewModel> {
         OfficesViewModelFactory((application as App).offices)
     }
-
-    private var mGeofenceList: ArrayList<Geofence>? = null
-    private lateinit var geofencingClient: GeofencingClient
-    private val ADDRESS_REQUESTED_KEY = "address-request-pending"
-    private val LOCATION_ADDRESS_KEY = "location-address"
-    /**
-     * Tracks whether the user has requested an address. Becomes true when the user requests an
-     * address and false when the address (or an error message) is delivered.
-     */
-    private var addressRequested = false
-
-    /**
-     * The formatted location address.
-     */
-    private var addressOutput = ""
-
-
-    private var coordinate = ""
-
-    /**
-     * Receiver registered with this activity to get the response from FetchAddressIntentService.
-     */
-    private lateinit var resultReceiver: AddressResultReceiver
-
-
     // The Fused Location Provider provides access to location APIs.
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(applicationContext)
@@ -115,35 +127,12 @@ class AttendanceActivity : BaseActivity(){
     // Typically, you use one cancellation source per lifecycle.
     private var cancellationTokenSource = CancellationTokenSource()
 
-    private val bReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent != null) {
-                if(intent.action == ACTION_GEOFENCE_EVENT){
-                    enableActions(intent.getStringExtra("office").toString())
-                    coordinate = intent.getStringExtra("coordinate").toString()
-                }
-                if(intent.action == ACTION_GEOFENCE_EVENT_EXIT){
-                    disableControllers()
-                    coordinate = ""
-                }
+    /**
+     * The list of geofences used in this sample.
+     */
+    private var mGeofenceList: ArrayList<Geofence>? = null
 
-            }
-        }
-    }
-
-    private val runningQOrLater =
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
-
-    // A PendingIntent for the Broadcast Receiver that handles geofence transitions.
-    private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        intent.action = ACTION_GEOFENCE_EVENT
-        // Use FLAG_UPDATE_CURRENT so that you get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-    }
-
-    private lateinit var binding: ActivityAttendanceBinding
+    private lateinit var currentOffice: CurrentOffice
 
     @ExperimentalPagingApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -151,81 +140,217 @@ class AttendanceActivity : BaseActivity(){
         binding = ActivityAttendanceBinding.inflate(layoutInflater)
         val view: View = binding.root
         setContentView(view)
+        currentOffice = CurrentOffice()
+        mGeofenceList = ArrayList()
+        geofencingClient = LocationServices.getGeofencingClient(this)
+
+        // Create channel for notifications
+        createChannel(this )
 
         viewModel = ViewModelProvider(this, Injection.attendancePagedViewModelFactory(this))
             .get(AttendancePagedViewModel::class.java)
 
-        resultReceiver = AddressResultReceiver(Handler())
-        geofencingClient = LocationServices.getGeofencingClient(this)
-
-        createChannel(this )
+        currentOfficeModel = ViewModelProvider(this, Injection.currentOfficeModelFactory(this))
+            .get(CurrentOfficeViewModel::class.java)
 
         initComponent()
         initNavigationMenu()
-//        initMap()
-        //updateValuesFromBundle(savedInstanceState)
-        mGeofenceList = ArrayList()
         initAdapter()
+        receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent != null) {
+
+                    if (intent.action == LOCKMINDS_ACTION_GEOFENCE_EVENT)  {
+
+                        val fenceId = intent.getStringExtra("fenceID")
+                        val action = intent.getStringExtra("track_action")
+
+                        if(action == LOCKMINDS_ACTION_GEOFENCE_EVENT_ENTERING){
+                            GlobalScope.launch {
+                                    val office = officesViewModel.getOffice(fenceId.toString())
+                                    currentOffice.user_id = sessionManager.getUserId()
+                                    currentOffice.attendance = office.attendance
+                                    currentOffice.created_at = office.created_at
+                                    currentOffice.deleted_at = office.deleted_at
+                                    currentOffice.id = office.id
+                                    currentOffice.latitude = office.latitude
+                                    currentOffice.longitude = office.longitude
+                                    currentOffice.name = office.name
+                                    currentOffice.synced = office.synced
+                                    currentOffice.team_id = office.team_id
+                                    currentOffice.updated_at = office.updated_at
+                                    val list = arrayListOf<CurrentOffice>()
+                                    list.add(currentOffice)
+
+                                    (application as App).currentOffice.syncItems(currentOffice.user_id.toString(),list)
+
+                                    runOnUiThread {
+                                        currentOffice.name?.let {
+                                            enableActions()
+                                        }
+                                    }
+                                }
+                        }
+
+                        if(action == LOCKMINDS_ACTION_GEOFENCE_EVENT_EXIT){
+                            toast("ametoka")
+                        }
+
+                    }
+                }
+            }
+        }
+
+        registerReceiver(receiver,   IntentFilter(LOCKMINDS_ACTION_GEOFENCE_EVENT))
+    }
+
+    override fun onResume() {
+        super.onResume()
 
     }
 
+    override fun onStart() {
+        super.onStart()
+        checkPermissionsAndStartGeofencing()
+    }
+
+    @SuppressLint("MissingPermission")
     @ExperimentalPagingApi
     private fun attemptCheckOut(){
-        if(coordinate.isEmpty()){
-            Toast.makeText(this@AttendanceActivity, resources.getText(R.string.coordinate_not_found,"coordinate not found"), Toast.LENGTH_SHORT).show()
-            return
-        }
+        if (applicationContext.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-        AndroidNetworking.post(APIURLs.BASE_URL + "check_out")
-            .addBodyParameter("coordinate",coordinate)
-            .addHeaders("accept", "application/json")
-            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
-            .setPriority(Priority.HIGH)
-            .build()
-            .getAsObject(Response::class.java, object : ParsedRequestListener<Response> {
-                override fun onResponse(response: Response) {
-                    val response: Response = response
-                    if(response.status.equals(true)){
-                        search(sessionManager.getUserId().toString())
+            val currentLocationTask: Task<Location> = fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_HIGH_ACCURACY,
+                cancellationTokenSource.token
+            )
+
+            currentLocationTask.addOnCompleteListener { task: Task<Location> ->
+                if (task.isSuccessful && task.result != null) {
+                    val result: Location = task.result
+                    currentOffice.name?.let {
+                        binding.loader.isVisible = true
+                        AndroidNetworking.post(APIURLs.BASE_URL + "check_out")
+                            .addBodyParameter("coordinate", currentOffice.id.toString())
+                            .addBodyParameter("latitude", result.latitude.toString())
+                            .addBodyParameter("longitude", result.longitude.toString())
+                            .setPriority(Priority.HIGH)
+                            .build()
+                            .getAsObject(
+                                Response::class.java,
+                                object : ParsedRequestListener<Response> {
+                                    override fun onResponse(response: Response) {
+                                        binding.loader.isVisible = false
+                                        val response: Response = response
+                                        if (response.status.equals(true)) {
+
+                                            search(sessionManager.getUserId().toString())
+                                        }
+                                        Toast.makeText(
+                                            this@AttendanceActivity,
+                                            response.message,
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    override fun onError(anError: ANError) {
+                                        binding.loader.isVisible = false
+                                    }
+                                })
                     }
-                    Toast.makeText(this@AttendanceActivity, response.message, Toast.LENGTH_SHORT).show()
                 }
-
-                override fun onError(anError: ANError) {
-                    Toast.makeText(this@AttendanceActivity, anError.errorBody, Toast.LENGTH_SHORT)
-                        .show()
-                }
-            })
+            }
+        }
 
     }
 
+    @SuppressLint("HardwareIds", "MissingPermission")
     @ExperimentalPagingApi
-    private fun attemptCheckIn(){
-        if(coordinate.isEmpty()){
-            Toast.makeText(this@AttendanceActivity, resources.getText(R.string.coordinate_not_found,"coordinate not found"), Toast.LENGTH_SHORT).show()
-            return
+    private fun attemptAttendanceRequest(location: String){
+
+        if (applicationContext.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+            val currentLocationTask: Task<Location> = fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_HIGH_ACCURACY,
+                cancellationTokenSource.token
+            )
+
+            currentLocationTask.addOnCompleteListener { task: Task<Location> ->
+                if (task.isSuccessful && task.result != null) {
+                    val result: Location = task.result
+                    binding.loader.isVisible = true
+                    AndroidNetworking.post(APIURLs.BASE_URL + "request_coordinate")
+                        .addBodyParameter("location",location)
+                        .addBodyParameter("latitude",result.latitude.toString())
+                        .addBodyParameter("longitude",result.longitude.toString())
+                        .setPriority(Priority.HIGH)
+                        .build()
+                        .getAsObject(Response::class.java, object : ParsedRequestListener<Response> {
+
+                            override fun onResponse(response: Response) {
+                                binding.loader.isVisible = false
+                                val response: Response = response
+                                if(response.status.equals(true)){
+                                    search(sessionManager.getUserId().toString())
+                                }
+                                Toast.makeText(this@AttendanceActivity, response.message, Toast.LENGTH_SHORT).show()
+                            }
+
+                            override fun onError(anError: ANError) {
+                                binding.loader.isVisible = false
+                                Toast.makeText(this@AttendanceActivity, anError.errorBody, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        })
+
+                } else {
+                    Toast.makeText(this@AttendanceActivity, task.exception.toString(), Toast.LENGTH_SHORT).show()
+                    restartActivity()
+                }
+            }
         }
 
-        AndroidNetworking.post(APIURLs.BASE_URL + "check_in")
-            .addBodyParameter("coordinate",coordinate)
-            .addHeaders("accept", "application/json")
-            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
-            .setPriority(Priority.HIGH)
-            .build()
-            .getAsObject(Response::class.java, object : ParsedRequestListener<Response> {
-                override fun onResponse(response: Response) {
-                    val response: Response = response
-                    if(response.status.equals(true)){
-                        search(sessionManager.getUserId().toString())
-                    }
-                    Toast.makeText(this@AttendanceActivity, response.message, Toast.LENGTH_SHORT).show()
-                }
+    }
 
-                override fun onError(anError: ANError) {
-                    Toast.makeText(this@AttendanceActivity, anError.errorBody, Toast.LENGTH_SHORT)
-                        .show()
+    @SuppressLint("MissingPermission")
+    @ExperimentalPagingApi
+    private fun attemptCheckIn(){
+        if (applicationContext.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+            val currentLocationTask: Task<Location> = fusedLocationClient.getCurrentLocation(
+                LocationRequest.PRIORITY_HIGH_ACCURACY,
+                cancellationTokenSource.token
+            )
+
+            currentLocationTask.addOnCompleteListener { task: Task<Location> ->
+                if (task.isSuccessful && task.result != null) {
+                    val result: Location = task.result
+                    currentOffice.name?.let {
+                        binding.loader.isVisible = true
+                        AndroidNetworking.post(APIURLs.BASE_URL + "check_in")
+                            .addBodyParameter("coordinate",currentOffice.id.toString())
+                            .addBodyParameter("latitude",result.latitude.toString())
+                            .addBodyParameter("longitude",result.longitude.toString())
+                            .setPriority(Priority.HIGH)
+                            .build()
+                            .getAsObject(Response::class.java, object : ParsedRequestListener<Response> {
+                                override fun onResponse(response: Response) {
+                                    binding.loader.isVisible = false
+                                    val response: Response = response
+                                    if(response.status.equals(true)){
+
+                                        search(sessionManager.getUserId().toString())
+                                    }
+                                    Toast.makeText(this@AttendanceActivity, response.message, Toast.LENGTH_SHORT).show()
+                                }
+
+                                override fun onError(anError: ANError) {
+                                    binding.loader.isVisible = false
+                                }
+                            })
+                    }
                 }
-            })
+            }
+        }
 
     }
 
@@ -257,7 +382,6 @@ class AttendanceActivity : BaseActivity(){
         }
 
         search(sessionManager.getUserId().toString())
-
     }
 
     @ExperimentalPagingApi
@@ -268,14 +392,8 @@ class AttendanceActivity : BaseActivity(){
 
         binding.toolbar.title = "Attendance"
         binding.toolbar.subtitle = "check in or check out"
-        binding.status.text = Tools.fromHtml("Your location is <b>NOT ALLOWED</b>. Please go to Office")
-        binding.currentLocation.text = Tools.fromHtml("Your current location is <b>UNKNOWN</b>")
-        binding.startAttendance.setOnClickListener {
-            finish()
-            overridePendingTransition(0, 0)
-            startActivity(intent)
-            overridePendingTransition(0, 0)
-        }
+        binding.status.text = Tools.fromHtml("You may request your supervisor to allow <b>CHECK IN/OUT</b> from here. click <b>SUBMIT REQUEST</b> to send request")
+        binding.currentLocation.text = Tools.fromHtml("<b>SUBMIT REQUEST</b>")
 
         binding.checkIn.setOnClickListener {
             checkInDialog()
@@ -283,6 +401,14 @@ class AttendanceActivity : BaseActivity(){
 
         binding.checkOut.setOnClickListener {
             checkOutDialog()
+        }
+
+        binding.currentLocation.setOnClickListener {
+            requestCoordinateDialog()
+        }
+
+        binding.requestsCard.setOnClickListener {
+            openAppSettings()
         }
 
     }
@@ -320,22 +446,179 @@ class AttendanceActivity : BaseActivity(){
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onResume() {
-        super.onResume()
-        syncOffices()
-        setAdapter()
-        registerReceiver(bReceiver,   IntentFilter(ACTION_GEOFENCE_EVENT))
+    @ExperimentalPagingApi
+    private fun checkInDialog() {
+        val builder = AlertDialog.Builder(this,R.style.dialogs)
+        builder.setTitle("PERFORM CHECK IN ?")
+        builder.setMessage("Be carefully as you can not undo this action")
+        builder.setPositiveButton("CHECK IN",
+            DialogInterface.OnClickListener { _, i ->
+                attemptCheckIn()
+            })
+        builder.setNegativeButton("NOT NOW", null)
+        builder.show()
     }
 
-    override fun onStop() {
-        super.onStop()
-        cancellationTokenSource.cancel()
+    @ExperimentalPagingApi
+    private fun requestCoordinateDialog() {
+
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE) // before
+
+        dialog.setContentView(R.layout.request_coordinate_dialog)
+        dialog.setCancelable(true)
+
+        val lp = WindowManager.LayoutParams()
+        lp.copyFrom(dialog.window!!.attributes)
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT
+
+        val location = dialog.findViewById<EditText>(R.id.location)
+
+        (dialog.findViewById<View>(R.id.bt_close) as ImageButton).setOnClickListener { dialog.dismiss() }
+        (dialog.findViewById<View>(R.id.bt_save) as Button).setOnClickListener {
+            attemptAttendanceRequest(location.text.toString())
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window!!.attributes = lp
+
     }
+
+    @ExperimentalPagingApi
+    private fun checkOutDialog() {
+        val builder = AlertDialog.Builder(this, R.style.dialogs)
+        builder.setTitle("PERFORM CHECK OUT ?")
+        builder.setMessage("Be carefully as you can not undo this action")
+        builder.setPositiveButton("CHECK OUT",
+            DialogInterface.OnClickListener { _, i ->
+                attemptCheckOut()
+            })
+        builder.setNegativeButton("NOT NOW", null)
+        builder.show()
+    }
+
+    private fun enableActions(){
+        binding.progressBar.isVisible = false
+        binding.status.isVisible = false
+        binding.checkIn.isVisible = true
+        binding.checkOut.isVisible = true
+        binding.intro.isVisible = true
+        binding.currentLocation.isVisible = false
+    }
+
+
+    @SuppressLint("Range", "MissingPermission")
+    private fun setAdapter() {
+
+        syncOffices()
+
+        val officesAdapter = OfficeAdapter(this) { offices -> officeOnClickNear(
+            offices
+        ) }
+
+        officesViewModel.allItems(sessionManager.getUserId().toString()).observe(this){
+
+            it?.let {
+                officesAdapter.submitList(it)
+                if(it.isNotEmpty()){
+                    it.forEach { office ->
+                        mGeofenceList!!.add(
+                            Geofence.Builder() // Set the request ID of the geofence. This is a string to identify this
+                                // geofence.
+                                .setRequestId(office.id.toString()) // Set the circular region of this geofence.
+                                .setCircularRegion(
+                                    office.latitude!!.toDouble(),
+                                    office.longitude!!.toDouble(),
+                                    Constants.GEOFENCE_RADIUS_IN_METERS
+                                )
+                                .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                                // Set the transition types of interest. Alerts are only generated for these
+                                // transition. We track entry and exit transitions in this sample.
+                                .setTransitionTypes(
+                                    Geofence.GEOFENCE_TRANSITION_ENTER or
+                                            Geofence.GEOFENCE_TRANSITION_EXIT
+                                ) // Create the geofence.
+                                .build()
+                        )
+                    }
+
+                    // Build the geofence request
+                    val geofencingRequest = GeofencingRequest.Builder()
+                        // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
+                        // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
+                        // is already inside that geofence.
+                        .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+
+                        // Add the geofences to be monitored by geofencing service.
+                        .addGeofences(mGeofenceList)
+                        .build()
+
+                    // First, remove any existing geofences that use our pending intent
+                    geofencingClient.removeGeofences(geofencePendingIntent)?.run {
+                        // Regardless of success/failure of the removal, add the new geofence
+                        addOnCompleteListener {
+                            // Add the new geofence request with the new geofence
+                            geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
+                                addOnSuccessListener {
+                                    // Geofences added.
+                                }
+                                addOnFailureListener {
+
+                                }
+                            }
+                        }
+                    }
+
+                    binding.lytNoConnection.isVisible = false
+                    binding.progressBar.isVisible = false
+                }else{
+                    disableControllers()
+                    binding.progressBar.isVisible = true
+                }
+            }
+        }
+
+    }
+
+    private fun officeOnClickNear(office: Office) {
+
+    }
+
+    private fun syncOffices(){
+        AndroidNetworking.get(APIURLs.BASE_URL + "get_offices")
+            .setPriority(Priority.HIGH)
+            .setPriority(Priority.LOW)
+            .build()
+            .getAsObjectList(Office::class.java, object : ParsedRequestListener<List<Office>> {
+                override fun onResponse(list: List<Office>) {
+                    val items: List<Office> = list
+                    GlobalScope.launch {
+                        (application as App).offices.syncItems(items)
+                    }
+                }
+
+                override fun onError(anError: ANError) {
+                    Toast.makeText(this@AttendanceActivity, anError.errorDetail, Toast.LENGTH_SHORT)
+                        .show()
+                }
+            })
+    }
+
+    private fun disableControllers(){
+        binding.checkIn.isVisible = false
+        binding.checkOut.isVisible = false
+        binding.intro.isVisible = false
+        binding.status.isVisible = true
+        binding.currentLocation.isVisible = true
+    }
+
     /*
-    *  When we get the result from asking the user to turn on device location, we call
-    *  checkDeviceLocationSettingsAndStartGeofence again to make sure it's actually on, but
-    *  we don't resolve the check to keep the user from seeing an endless loop.
-    */
+ *  When we get the result from asking the user to turn on device location, we call
+ *  checkDeviceLocationSettingsAndStartGeofence again to make sure it's actually on, but
+ *  we don't resolve the check to keep the user from seeing an endless loop.
+ */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
@@ -353,56 +636,20 @@ class AttendanceActivity : BaseActivity(){
         super.onNewIntent(intent)
         val extras = intent?.extras
         if(extras != null){
-            if(extras.containsKey(GeofencingConstants.EXTRA_GEOFENCE_INDEX)){
-                checkPermissionsAndStartGeofencing()
-            }
+
         }
     }
 
-    @ExperimentalPagingApi
-    private fun checkInDialog() {
-        val builder = AlertDialog.Builder(this,R.style.dialogs)
-        builder.setTitle("PERFORM CHECK IN ?")
-        builder.setMessage("Be carefully as you can not undo this action")
-        builder.setPositiveButton("CHECK IN",
-            DialogInterface.OnClickListener { _, i ->
-                    attemptCheckIn()
-            })
-        builder.setNegativeButton("NOT NOW", null)
-        builder.show()
-    }
-
-    @ExperimentalPagingApi
-    private fun checkOutDialog() {
-        val builder = AlertDialog.Builder(this, R.style.dialogs)
-        builder.setTitle("PERFORM CHECK OUT ?")
-        builder.setMessage("Be carefully as you can not undo this action")
-        builder.setPositiveButton("CHECK OUT",
-            DialogInterface.OnClickListener { _, i ->
-                attemptCheckOut()
-            })
-        builder.setNegativeButton("NOT NOW", null)
-        builder.show()
-    }
-
-    private fun enableActions(office: String){
-        //binding.currentLocation.isVisible = false
-        binding.progressBar.isVisible = false
-        binding.status.text = Tools.fromHtml("You have arrived at <b>${office}</b>")
-        binding.checkIn.isVisible = true
-        binding.checkOut.isVisible = true
-        binding.intro.isVisible = true
-    }
     /*
      * In all cases, we need to have the location permission.  On Android 10+ (Q) we need to have
      * the background permission as well.
      */
-    @SuppressLint("MissingSuperCall")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d(TAG, "onRequestPermissionResult")
 
         if (
@@ -437,7 +684,7 @@ class AttendanceActivity : BaseActivity(){
     override fun onDestroy() {
         super.onDestroy()
         removeGeofences()
-        unregisterReceiver(bReceiver)
+        unregisterReceiver(receiver)
     }
 
     /**
@@ -445,7 +692,7 @@ class AttendanceActivity : BaseActivity(){
      * current hint isn't yet active.
      */
     private fun checkPermissionsAndStartGeofencing() {
-
+       // if (viewModel.geofenceIsActive()) return
         if (foregroundAndBackgroundLocationPermissionApproved()) {
             checkDeviceLocationSettingsAndStartGeofence()
         } else {
@@ -453,54 +700,14 @@ class AttendanceActivity : BaseActivity(){
         }
     }
 
-
-    /**
-     * Updates fields based on data stored in the bundle.
-     */
-    private fun updateValuesFromBundle(savedInstanceState: Bundle?) {
-        savedInstanceState ?: return
-
-        ADDRESS_REQUESTED_KEY.let {
-            // Check savedInstanceState to see if the address was previously requested.
-            if (savedInstanceState.keySet().contains(it)) {
-                addressRequested = savedInstanceState.getBoolean(it)
-            }
-        }
-
-        LOCATION_ADDRESS_KEY.let {
-            // Check savedInstanceState to see if the location address string was previously found
-            // and stored in the Bundle. If it was found, display the address string in the UI.
-            if (savedInstanceState.keySet().contains(it)) {
-                addressOutput = savedInstanceState.getString(it).toString()
-                displayAddressOutput()
-            }
-        }
-
-
-    }
-
-    /**
-     * Updates the address in the UI.
-     */
-    private fun displayAddressOutput() {
-        binding.currentLocation.text = addressOutput
-    }
-
-
     /*
      *  Uses the Location Client to check the current state of location settings, and gives the user
      *  the opportunity to turn on location services within our app.
      */
     private fun checkDeviceLocationSettingsAndStartGeofence(resolve:Boolean = true) {
-
-        binding.checkIn.isVisible = false
-        binding.checkOut.isVisible = false
-        binding.intro.isVisible = false
-
         val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            priority = LocationRequest.PRIORITY_LOW_POWER
         }
-
         val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
 
         val settingsClient = LocationServices.getSettingsClient(this)
@@ -508,11 +715,6 @@ class AttendanceActivity : BaseActivity(){
             settingsClient.checkLocationSettings(builder.build())
 
         locationSettingsResponseTask.addOnFailureListener { exception ->
-
-            binding.checkIn.isVisible = false
-            binding.checkOut.isVisible = false
-            binding.intro.isVisible = false
-
             if (exception is ResolvableApiException && resolve){
                 // Location settings are not satisfied, but this can be fixed
                 // by showing the user a dialog.
@@ -520,9 +722,10 @@ class AttendanceActivity : BaseActivity(){
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
                     exception.startResolutionForResult(this@AttendanceActivity,
-                        REQUEST_TURN_DEVICE_LOCATION_ON)
+                        REQUEST_TURN_DEVICE_LOCATION_ON
+                    )
                 } catch (sendEx: IntentSender.SendIntentException) {
-
+                    Log.d(TAG, "Error geting location settings resolution: " + sendEx.message)
                 }
             } else {
                 Snackbar.make(
@@ -533,9 +736,7 @@ class AttendanceActivity : BaseActivity(){
                 }.show()
             }
         }
-
         locationSettingsResponseTask.addOnCompleteListener {
-
             if ( it.isSuccessful ) {
                 addGeofenceForClue()
             }
@@ -552,7 +753,6 @@ class AttendanceActivity : BaseActivity(){
                 PackageManager.PERMISSION_GRANTED ==
                         ActivityCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION))
-
         val backgroundPermissionApproved =
             if (runningQOrLater) {
                 PackageManager.PERMISSION_GRANTED ==
@@ -586,6 +786,7 @@ class AttendanceActivity : BaseActivity(){
             else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
         }
 
+        Log.d(TAG, "Request foreground only location permission")
         ActivityCompat.requestPermissions(
             this@AttendanceActivity,
             permissionsArray,
@@ -601,73 +802,7 @@ class AttendanceActivity : BaseActivity(){
      */
     @SuppressLint("MissingPermission")
     private fun addGeofenceForClue() {
-
-        requestCurrentLocation()
-
-        GlobalScope.launch {
-            val offices = (application as App).offices.getList()
-            runOnUiThread {
-                offices.let{ list1 ->
-                    if(list1.isNotEmpty()){
-                        list1.forEach {
-                            val lat = it.latitude.toString()
-                            val long = it.longitude.toString()
-                            val landMark = LandmarkDataObject(it.id.toString(), it.name.toString())
-                            GeofencingConstants.LANDMARK_DATA.add(landMark)
-                            // Build the Geofence Object
-                            val geofence = Geofence.Builder()
-                                // Set the request ID, string to identify the geofence.
-                                .setRequestId(it.id.toString())
-                                // Set the circular region of this geofence.
-                                .setCircularRegion(lat.toDouble(),
-                                    long.toDouble(),
-                                    GeofencingConstants.GEOFENCE_RADIUS_IN_METERS
-                                )
-                                // Set the expiration duration of the geofence. This geofence gets
-                                // automatically removed after this period of time.
-                                .setExpirationDuration(GeofencingConstants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                                // Set the transition types of interest. Alerts are only generated for these
-                                // transition. We track entry and exit transitions in this sample.
-                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                                .build()
-                            mGeofenceList?.add(geofence)
-                        }
-
-                        // Build the geofence request
-                        val geofencingRequest = GeofencingRequest.Builder()
-                            // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
-                            // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
-                            // is already inside that geofence.
-                            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-
-                            // Add the geofences to be monitored by geofencing service.
-                            .addGeofences(mGeofenceList)
-                            .build()
-
-                        // First, remove any existing geofences that use our pending intent
-                        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-                            // Regardless of success/failure of the removal, add the new geofence
-                            addOnCompleteListener {
-                                // Add the new geofence request with the new geofence
-                                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
-                                    addOnSuccessListener {
-                                        // Geofences added.
-
-                                    }
-                                    addOnFailureListener {
-                                        // Failed to add geofences.
-                                        binding.checkIn.isVisible = false
-                                        binding.checkOut.isVisible = false
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+        setAdapter()
     }
 
     /**
@@ -675,213 +810,25 @@ class AttendanceActivity : BaseActivity(){
      * permission.
      */
     private fun removeGeofences() {
-
-        binding.checkIn.isVisible = false
-        binding.checkOut.isVisible = false
-
         if (!foregroundAndBackgroundLocationPermissionApproved()) {
             return
         }
-
-        geofencingClient.removeGeofences(geofencePendingIntent)?.run {
-
-            addOnSuccessListener {}
-
-            addOnFailureListener {}
-        }
-    }
-
-
-    /**
-     * Gets current location.
-     * Note: The code checks for permission before calling this method, that is, it's never called
-     * from a method with a missing permission. Also, I include a second check with my extension
-     * function in case devs just copy/paste this code.
-     */
-    @SuppressLint("MissingPermission")
-    private fun requestCurrentLocation() {
-
-        if (applicationContext.hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-            // Returns a single current location fix on the device. Unlike getLastLocation() that
-            // returns a cached location, this method could cause active location computation on the
-            // device. A single fresh location will be returned if the device location can be
-            // determined within reasonable time (tens of seconds), otherwise null will be returned.
-            //
-            // Both arguments are required.
-            // PRIORITY type is self-explanatory. (Other options are PRIORITY_BALANCED_POWER_ACCURACY,
-            // PRIORITY_LOW_POWER, and PRIORITY_NO_POWER.)
-            // The second parameter, [CancellationToken] allows the activity to cancel the request
-            // before completion.
-            val currentLocationTask: Task<Location> = fusedLocationClient.getCurrentLocation(
-                LocationRequest.PRIORITY_HIGH_ACCURACY,
-                cancellationTokenSource.token
-            )
-
-            currentLocationTask.addOnCompleteListener { task: Task<Location> ->
-                val result = if (task.isSuccessful && task.result != null) {
-                    val result: Location = task.result
-                    "Your Location : ${result.latitude}, ${result.longitude}"
-
-                } else {
-                    val exception = task.exception
-                    "Location UNKNOWN: $exception"
-                }
-
-                logOutputToScreen(result)
-
-                if (task.isSuccessful && task.result != null){
-                    val location: Location = task.result
-                    // Create an intent for passing to the intent service responsible for fetching the address.
-                    val intent = Intent(this, FetchAddressIntentService::class.java).apply {
-                        // Pass the result receiver as an extra to the service.
-                        putExtra(Constants.RECEIVER, resultReceiver)
-
-                        // Pass the location data as an extra to the service.
-                        putExtra(Constants.LOCATION_DATA_EXTRA, location)
-                    }
-
-                    // Start the service. If the service isn't already running, it is instantiated and started
-                    // (creating a process for it if needed); if it is running then it remains running. The
-                    // service kills itself automatically once all intents are processed.
-                    startService(intent)
-                }
-
-
+        geofencingClient.removeGeofences(geofencePendingIntent).run {
+            addOnSuccessListener {
+                // Geofences removed
+                Log.d(TAG, getString(R.string.geofences_removed))
+            }
+            addOnFailureListener {
+                // Failed to remove geofences
+                Log.d(TAG, getString(R.string.geofences_not_removed))
             }
         }
     }
-
-    private fun logOutputToScreen(outputString: String) {
-        binding.currentLocation.text = outputString
-    }
-
-    companion object {
-        internal const val ACTION_GEOFENCE_EVENT =
-            "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT"
-        internal const val ACTION_GEOFENCE_EVENT_EXIT =
-            "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT_EXIT"
-    }
-
-    /**
-     * Receiver for data sent from FetchAddressIntentService.
-     */
-    private inner class AddressResultReceiver internal constructor(
-        handler: Handler
-    ) : ResultReceiver(handler) {
-
-        /**
-         * Receives data sent from FetchAddressIntentService and updates the UI in MainActivity.
-         */
-        override fun onReceiveResult(resultCode: Int, resultData: Bundle) {
-
-            // Display the address string or an error message sent from the intent service.
-            addressOutput = resultData.getString(Constants.RESULT_DATA_KEY).toString()
-            displayAddressOutput()
-
-            // Show a toast message if an address was found.
-            if (resultCode == Constants.SUCCESS_RESULT) {
-
-            }
-
-            // Reset. Enable the Fetch Address button and stop showing the progress bar.
-            addressRequested = false
-        }
-    }
-
-    override fun onUserInteraction() {
-        super.onUserInteraction()
-        delayedIdle(1)
-    }
-
-    private var _idleHandler: Handler = Handler()
-    private var _idleRunnable = Runnable {
-        //handle your IDLE state
-        binding.checkIn.isVisible = true
-        binding.checkOut.isVisible = true
-        binding.intro.isVisible = true
-        binding.startAttendance.isVisible = false
-    }
-
-    override fun delayedIdle(delayMinutes: Long) {
-        _idleHandler.removeCallbacks(_idleRunnable)
-        _idleHandler.postDelayed(_idleRunnable, (delayMinutes))
-    }
-
-    private fun setAdapter() {
-
-//        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-//        binding.recyclerView.setHasFixedSize(true)
-
-        val officesAdapter = OfficeAdapter(this) { offices -> officeOnClickNear(
-            offices
-        ) }
-
-        officesViewModel.allItems(sessionManager.getUserId().toString()).observe(this){
-
-            it?.let {
-                officesAdapter.submitList(it)
-                if(it.isNotEmpty()){
-                    binding.lytNoConnection.isVisible = false
-                    checkPermissionsAndStartGeofencing()
-                    binding.progressBar.isVisible = false
-                }else{
-                    disableControllers()
-                    binding.progressBar.isVisible = true
-                }
-            }
-        }
-
-       // binding.recyclerView.adapter = officesAdapter
-
-    }
-
-    private fun officeOnClickNear(office: Office) {
-
-    }
-
-    private fun syncOffices(){
-        AndroidNetworking.get(APIURLs.BASE_URL + "get_offices")
-            .setTag("lots")
-            .addHeaders("accept", "application/json")
-            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
-            .setPriority(Priority.HIGH)
-            .setPriority(Priority.LOW)
-            .build()
-            .getAsObjectList(Office::class.java, object : ParsedRequestListener<List<Office>> {
-                override fun onResponse(list: List<Office>) {
-                    val items: List<Office> = list
-                    GlobalScope.launch {
-                        (application as App).offices.syncItems(items)
-                    }
-                }
-
-                override fun onError(anError: ANError) {
-                    Toast.makeText(this@AttendanceActivity, anError.errorDetail, Toast.LENGTH_SHORT)
-                        .show()
-                }
-            })
-    }
-
-    private fun disableControllers(){
-        binding.checkIn.isVisible = false
-        binding.checkOut.isVisible = false
-        binding.intro.isVisible = false
-        binding.startAttendance.isVisible = false
-    }
-
-    private fun enableControllers(){
-        binding.checkIn.isVisible = true
-        binding.checkOut.isVisible = true
-        binding.intro.isVisible = true
-        binding.startAttendance.isVisible = false
-    }
-
 }
 
 private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
 private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
 private const val REQUEST_TURN_DEVICE_LOCATION_ON = 29
-private const val TAG = "HuntMainActivity"
+private const val TAG = "AttendanceActivity"
 private const val LOCATION_PERMISSION_INDEX = 0
 private const val BACKGROUND_LOCATION_PERMISSION_INDEX = 1

@@ -32,6 +32,8 @@ import com.lockminds.brass_services.reponses.Response
 import com.lockminds.libs.constants.APIURLs
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -78,6 +80,7 @@ class ProfileActivity : BaseActivity() {
                     Context.MODE_PRIVATE
             )
             preference?.edit()?.clear()?.apply()
+            clearAppData()
             val intent = Intent(this@ProfileActivity, LoginActivity::class.java)
             startActivity(intent)
             finish()
@@ -108,32 +111,30 @@ class ProfileActivity : BaseActivity() {
     }
 
     private fun initInformation(){
+
+        userViewModel.getUser(sessionManager.getUserId().toString()).observe(this){ user ->
+            binding.name.text = user.name
+            binding.phoneNumber.text = user.phone_number
+            binding.contact.text = user.email
+            user.change_details?.let {
+                binding.fab.isVisible = true
+            }
+            user.profile_photo_path?.let {
+                Glide
+                    .with(applicationContext)
+                    .load(user.profile_photo_path)
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .into(binding.image)
+            }
+        }
+
         val preference = applicationContext?.getSharedPreferences(
                 Constants.PREFERENCE_KEY,
                 Context.MODE_PRIVATE
         )
-        if (preference != null) {
-            binding.name.text = preference.getString(
-                    Constants.NAME,
-                    resources.getString(R.string.app_name)
-            )
-            binding.name1.text = preference.getString(
-                    Constants.NAME,
-                    resources.getString(R.string.app_name)
-            )
-            binding.phoneNumber.text = preference.getString(Constants.PHONE_NUMBER, "")
-            Glide
-                .with(applicationContext)
-                .load(preference.getString(Constants.PHOTO_URL, ""))
-                .centerCrop()
-                .placeholder(R.mipmap.ic_launcher_round)
-                .into(binding.image)
-            binding.contact.text = preference.getString(Constants.EMAIL, "info@brassservices.co.tz")
 
-            val change_details = preference.getString(Constants.CHANGE_DETAILS, "null");
-            if (change_details.equals("1")){
-                binding.fab.isVisible = true
-            }
+        if (preference != null) {
 
             binding.fab.setOnClickListener {
                 val intent = Intent(this@ProfileActivity, UpdateProfileActivity::class.java)
@@ -188,8 +189,6 @@ class ProfileActivity : BaseActivity() {
                 if (preference != null) {
                     AndroidNetworking.upload(APIURLs.BASE_URL + "user/change_picture")
                             .addMultipartFile("photo", file)
-                            .addHeaders("accept", "application/json")
-                            .addHeaders("Authorization", "Bearer " + preference.getString(Constants.LOGIN_TOKEN, "false"))
                             .setPriority(Priority.HIGH)
                             .build()
                             .setUploadProgressListener { bytesUploaded, totalBytes ->

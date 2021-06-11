@@ -187,8 +187,6 @@ class AccidentActivity : BaseActivity() {
     private fun syncGallery(){
             AndroidNetworking.get(APIURLs.BASE_URL + "get_accident_galleries")
                     .addQueryParameter("id", accidentId)
-                    .addHeaders("accept", "application/json")
-                    .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                     .setPriority(Priority.HIGH)
                     .setPriority(Priority.LOW)
                     .build()
@@ -221,8 +219,6 @@ class AccidentActivity : BaseActivity() {
                             .addMultipartParameter("lot", accident.lot_no)
                             .addMultipartParameter("id", accidentId)
                             .addMultipartFile("photo", file)
-                            .addHeaders("accept", "application/json")
-                            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                             .setPriority(Priority.HIGH)
                             .build()
                             .setUploadProgressListener { bytesUploaded, totalBytes ->

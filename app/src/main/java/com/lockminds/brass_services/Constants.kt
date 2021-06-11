@@ -26,13 +26,17 @@ class Constants{
         @JvmField val PHONE_NUMBER = "phone"
         @JvmField val NAME = "name"
         @JvmField val EMAIL = "email"
+        @JvmField val WAREHOUSE = "warehouse"
         @JvmField val TEAM_EMAIL = "team_email"
         @JvmField val TEAM_NAME = "team_name"
+        @JvmField val TEAM_ID = "team_id"
         @JvmField val TEAM_PHONE = "team_phone"
         @JvmField val TEAM_ADDRESS = "team_address"
         @JvmField val POLICY_URL = "policy_url"
         @JvmField val CHANGE_DETAILS = "change_details"
         @JvmField val CHANGE_PICTURE = "change_picture"
+        const val GEOFENCE_RADIUS_IN_METERS = 50F
+        const val GEOFENCE_EXPIRATION_IN_MILLISECONDS = 1000000L
         const val FCM_TOKEN = "fcm_token"
         const val INTENT_PARAM_1 = "intent_param_1"
         const val SUCCESS_RESULT = 0
@@ -46,6 +50,12 @@ class Constants{
         const val RESULT_DATA_KEY = "$PACKAGE_NAME.RESULT_DATA_KEY"
 
         const val LOCATION_DATA_EXTRA = "$PACKAGE_NAME.LOCATION_DATA_EXTRA"
+
+
+        const val ACTION_GEOFENCE_EVENT = "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT"
+        const val LOCKMINDS_ACTION_GEOFENCE_EVENT = "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT_FIRED"
+        const val LOCKMINDS_ACTION_GEOFENCE_EVENT_ENTERING = "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT_ENTERING"
+        const val LOCKMINDS_ACTION_GEOFENCE_EVENT_EXIT = "com.lockminds.brass_services.geofence.action.ACTION_GEOFENCE_EVENT_EXIT"
     }
 
 }

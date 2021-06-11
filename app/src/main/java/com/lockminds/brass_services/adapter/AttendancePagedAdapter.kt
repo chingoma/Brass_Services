@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.lockminds.brass_services.R
 import com.lockminds.brass_services.Tools
 import com.lockminds.brass_services.model.Attendance
+import java.lang.Math.round
 
 
 class AttendancePagedAdapter : PagingDataAdapter<Attendance, ViewHolder>(UI_MODEL_COMPARATOR) {
@@ -69,7 +70,10 @@ class AttendancePagedAdapter : PagingDataAdapter<Attendance, ViewHolder>(UI_MODE
             this.item = item
             name.text = item.name
             actions.text = Tools.fromHtml("Check IN: <b>${item.time_in}</b><br/> Check OUT:  <b>${item.time_out}</b>")
-            status.text = Tools.fromHtml("Status: <b>${item.status}</b>  <br/>Hours: <b>${item.working_hours}</b><br/> Extra Hours: <b>${item.extra_hours}</b>")
+            status.text = Tools.fromHtml("Status: <b>${item.status}</b>  <br/>Hours: <b>${item.working_hours?.let {
+                round(
+                    it.toFloat()).toString()
+            }}</b><br/> Extra Hours: <b>${item.extra_hours?.let { round(it.toFloat()) }}</b>")
         }
 
         companion object {

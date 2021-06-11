@@ -123,9 +123,7 @@ class UpdateProfileActivity : AppCompatActivity() {
                 AndroidNetworking.post(APIURLs.BASE_URL + "user/change_details")
                     .addBodyParameter("name", binding.name.text.toString())
                     .addBodyParameter("phone_number", binding.phoneNumber.text.toString())
-                    .addHeaders("accept", "application/json")
                     .setPriority(Priority.HIGH)
-                    .addHeaders("Authorization", "Bearer " + preference.getString(Constants.LOGIN_TOKEN, "false"))
                     .build()
                     .getAsParsed(
                         object : TypeToken<Response?>() {},

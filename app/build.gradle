@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-android-extensions'
 }
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 30
@@ -13,8 +14,8 @@ android {
         applicationId "com.lockminds.brass_services"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 5
-        versionName "5.0"
+        versionCode 6
+        versionName "1.0"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -52,19 +53,25 @@ android {
 }
 
 dependencies {
-
+// Kotlin components
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
+    implementation "androidx.activity:activity-ktx:$rootProject.activityVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintLayoutVersion"
+    implementation "com.google.android.material:material:$rootProject.materialVersion"
     implementation "androidx.multidex:multidex:$multidex_version"
     implementation 'com.jsibbold:zoomage:1.3.1'
+
     // Room components
     implementation "androidx.room:room-ktx:$rootProject.roomVersion"
     implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.google.firebase:firebase-auth:20.0.4'
     implementation 'androidx.cardview:cardview:1.0.0'
+
     kapt "androidx.room:room-compiler:$rootProject.roomVersion"
     androidTestImplementation "androidx.room:room-testing:$rootProject.roomVersion"
 
@@ -72,20 +79,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$rootProject.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycleVersion"
-
-    // Kotlin components
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
-
-    //For coroutines
-    implementation "com.sagar:coroutinespermission:$sagar_version"
-
-    //For LiveData
-    implementation "com.sagar:livedatapermission:$sagar_version"
-
-    //For Kotlin DSL
-    implementation "com.sagar:dslpermission:$sagar_version"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
 
     implementation 'com.google.android.gms:play-services-maps:17.0.1'
@@ -93,27 +87,15 @@ dependencies {
 
     // retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.retrofit2:retrofit-mock:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpLoggingInterceptorVersion"
-
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation "com.squareup.retrofit2:retrofit-mock:$retrofitVersion"
 
     implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
     // UI
-    implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintLayoutVersion"
-    implementation "com.google.android.material:material:$rootProject.materialVersion"
     implementation "androidx.recyclerview:recyclerview:$rootProject.recyclerViewVersion"
-
-    implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
-    implementation "androidx.activity:activity-ktx:$rootProject.activityVersion"
-    implementation "androidx.fragment:fragment-ktx:1.3.3"
-
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     // Kotlin + coroutines
     implementation "androidx.work:work-runtime-ktx:$rootProject.work_version"
@@ -123,27 +105,16 @@ dependencies {
 
     // optional - GCMNetworkManager support
     implementation "androidx.work:work-gcm:$rootProject.work_version"
-    // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:26.3.0')
 
-    //    Firebase UI
-    implementation "com.firebaseui:firebase-ui-auth:7.1.1"
-    implementation "com.facebook.android:facebook-login:7.1.0"
 
     // Import the BoM for the Firebase platform
-    implementation platform('com.google.firebase:firebase-bom:26.8.0')
+    implementation platform('com.google.firebase:firebase-bom:28.0.1')
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-installations-ktx:17.0.0'
 
-    // Declare the dependency for the Realtime Database library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation 'com.google.firebase:firebase-database-ktx'
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
-    //    Butter Knife
-    implementation "com.jakewharton:butterknife:10.2.3"
-    implementation 'com.balysv:material-ripple:1.0.2'
-    implementation 'com.google.firebase:firebase-perf:20.0.0'
-    implementation 'com.google.firebase:firebase-analytics:19.0.0'
-    implementation 'com.google.firebase:firebase-messaging:22.0.0'
-    implementation 'com.google.firebase:firebase-auth-ktx'
+
     implementation "com.karumi:dexter:6.2.2"
     implementation "com.theartofdev.edmodo:android-image-cropper:$rootProject.imageCroperVersion"
     implementation 'com.mikhaellopez:circularimageview:3.2.0'
@@ -156,6 +127,13 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.1'
-    apply plugin: 'com.google.gms.google-services'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
+
+    implementation 'com.pusher:pusher-java-client:2.2.6'
+    implementation 'com.sagar:dslpermission:2.0.3'
+    implementation 'com.balysv:material-ripple:1.0.2'
+
+    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+
+
+
 }

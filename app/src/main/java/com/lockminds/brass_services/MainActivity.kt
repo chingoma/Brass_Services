@@ -23,6 +23,8 @@ import com.lockminds.brass_services.model.Accident
 import com.lockminds.brass_services.model.Lot
 import com.lockminds.brass_services.ui.AccidentsActivity
 import com.lockminds.brass_services.ui.LotsActivity
+import com.lockminds.brass_services.ui.OffloadActivity
+import com.lockminds.brass_services.ui.ReceiveActivity
 import com.lockminds.brass_services.viewmodel.AccidentViewModel
 import com.lockminds.brass_services.viewmodel.AccidentViewModelFactory
 import com.lockminds.brass_services.viewmodel.LotsViewModel
@@ -39,9 +41,6 @@ class MainActivity : BaseActivity() {
         LotsViewModelFactory((application as App).lotRepo)
     }
 
-    private val accidentsViewModel by viewModels<AccidentViewModel> {
-        AccidentViewModelFactory((application as App).accidents)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,13 +60,11 @@ class MainActivity : BaseActivity() {
 
         permissionsViewModel.getPermissions(sessionManager.getUserId().toString()).observe(this){
             it?.let {permissions ->
-                binding.lytNoConnection.isVisible = permissions.escort!! < 1
-                binding.container.isVisible = permissions.escort!! > 0
+                binding.receiver.isVisible = permissions.receive!! > 0
                 binding.intro.isVisible = permissions.escort!! > 0
             }
         }
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -96,6 +93,16 @@ class MainActivity : BaseActivity() {
 
         binding.lotQty.setOnClickListener {
             val intent = Intent(this@MainActivity, LotsActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.receive.setOnClickListener {
+            val intent = Intent(this@MainActivity, ReceiveActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.offload.setOnClickListener {
+            val intent = Intent(this@MainActivity, OffloadActivity::class.java)
             startActivity(intent)
         }
 
@@ -142,16 +149,9 @@ class MainActivity : BaseActivity() {
                     binding.lytNoConnection.isVisible = false
                 }
                 binding.lytNoConnection.isVisible = false
-                binding.lotQty.text = "No. Lots ("+it.size.toString()+")"
             }
         }
 
-        accidentsViewModel.allItems(sessionManager.getUserId().toString()).observe(this){
-
-            it?.let {
-                binding.reportAccident.text = "Accidents ("+it.size.toString()+")"
-            }
-        }
 
         binding.recyclerView.adapter = lotsAdapter
 
@@ -159,9 +159,6 @@ class MainActivity : BaseActivity() {
 
     private fun syncLots(){
         AndroidNetworking.get(APIURLs.BASE_URL + "lots/get_all_lots")
-            .setTag("lots")
-            .addHeaders("accept", "application/json")
-            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
             .setPriority(Priority.HIGH)
             .setPriority(Priority.LOW)
             .build()
@@ -180,9 +177,6 @@ class MainActivity : BaseActivity() {
 
     private fun syncAccidents(){
         AndroidNetworking.get(APIURLs.BASE_URL + "get_accidents")
-                .setTag("lots")
-                .addHeaders("accept", "application/json")
-                .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                 .setPriority(Priority.HIGH)
                 .setPriority(Priority.LOW)
                 .build()

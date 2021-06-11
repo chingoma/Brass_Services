@@ -10,6 +10,9 @@ interface OfficesDao {
     @Query("SELECT * FROM offices")
     fun getList(): List<Office>
 
+    @Query("SELECT * FROM offices WHERE id = :office")
+    fun getOffice(office: String): Office
+
     @Query("SELECT * FROM offices")
     fun getItems(): Flow<List<Office>>
 

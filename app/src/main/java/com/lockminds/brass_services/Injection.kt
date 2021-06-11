@@ -4,13 +4,10 @@ import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.lockminds.brass_services.database.AppDatabase
 import com.lockminds.brass_services.database.daos.UserDao
-import com.lockminds.brass_services.database.repositories.AttendancePagedRepository
-import com.lockminds.brass_services.database.repositories.PermissionsRepository
-import com.lockminds.brass_services.database.repositories.UserRepository
+import com.lockminds.brass_services.database.repositories.*
 import com.lockminds.brass_services.retrofit.AttendanceService
-import com.lockminds.brass_services.viewmodel.AttendancePagedViewModelFactory
-import com.lockminds.brass_services.viewmodel.PermissionsViewModelFactory
-import com.lockminds.brass_services.viewmodel.UserViewModelFactory
+import com.lockminds.brass_services.retrofit.ReceiverLotService
+import com.lockminds.brass_services.viewmodel.*
 
 /**
  * Class that handles object creation.
@@ -41,6 +38,22 @@ object Injection {
 
     fun attendancePagedViewModelFactory(context: Context): ViewModelProvider.Factory {
         return AttendancePagedViewModelFactory(attendancePagedRepository(context))
+    }
+
+    private fun provideCurrentOffice(context: Context): CurrentOfficeRepository{
+        return CurrentOfficeRepository(AppDatabase.getInstance(context).currentOfficeDao())
+    }
+
+    fun currentOfficeModelFactory(context: Context) : CurrentOfficeViewModelFactory{
+        return CurrentOfficeViewModelFactory(provideCurrentOffice(context))
+    }
+
+    private fun receiverLotPagedRepository(context: Context): ReceiverLotPagedRepository {
+        return ReceiverLotPagedRepository(ReceiverLotService.create(), AppDatabase.getInstance(context))
+    }
+
+    fun receiverLotPagedViewModelFactory(context: Context): ViewModelProvider.Factory {
+        return ReceiverLotPagedViewModelFactory(receiverLotPagedRepository(context))
     }
 
 }

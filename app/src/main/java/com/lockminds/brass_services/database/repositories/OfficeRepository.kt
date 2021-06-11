@@ -23,5 +23,9 @@ class OfficeRepository(
      @WorkerThread
      fun getList() : List<Office> = dao.getList()
 
+     @Suppress("RedundantSuspendModifier")
+     @WorkerThread
+     fun getOffice(office: String) : Office = dao.getOffice(office)
+
 
 }

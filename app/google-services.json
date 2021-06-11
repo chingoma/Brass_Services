@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "571615575249",
-    "project_id": "brass-services",
-    "storage_bucket": "brass-services.appspot.com"
+    "project_number": "41628598137",
+    "project_id": "bras-services",
+    "storage_bucket": "bras-services.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:571615575249:android:a13c4886776fdc9223d9f0",
+        "mobilesdk_app_id": "1:41628598137:android:87c331c4b59228f1bd39a8",
         "android_client_info": {
           "package_name": "com.lockminds.brass_services"
         }
       },
       "oauth_client": [
         {
-          "client_id": "571615575249-qunir36qolki110300islfrq0629795p.apps.googleusercontent.com",
+          "client_id": "41628598137-nt1jbr18r3cruffpbmgh0muekd9hqrcm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lockminds.brass_services",
+            "certificate_hash": "316db7c9a38ba474d25d54df53a9a098efcdeeca"
+          }
+        },
+        {
+          "client_id": "41628598137-mg5plfpnl8shdrbrbpmk1025gv48vnb6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBEKx4Y7X8yPtXWqDwniLYmS50xNrHV5oY"
+          "current_key": "AIzaSyC4gHzg2wuiCa-7KPEabwSw5lP_yR4nBnw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "571615575249-qunir36qolki110300islfrq0629795p.apps.googleusercontent.com",
+              "client_id": "41628598137-mg5plfpnl8shdrbrbpmk1025gv48vnb6.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -33,6 +33,13 @@ class SessionManager (context: Context) {
         return prefs.getString(Constants.LOGIN_TOKEN, null)
     }
 
+    fun getTeamId(): String? {
+        return prefs.getString(Constants.TEAM_ID, null)
+    }
+
+    fun getWarehouse(): String? {
+        return prefs.getString(Constants.WAREHOUSE, null)
+    }
 
     /**
      * Function to fetch user id
@@ -45,7 +52,7 @@ class SessionManager (context: Context) {
      * Function to fetch user id
      */
     fun getFCMToken(): String? {
-        return prefs.getString(Constants.FCM_TOKEN, null)
+        return prefs.getString(Constants.FCM_TOKEN, "fcm_token")
     }
 
     /**

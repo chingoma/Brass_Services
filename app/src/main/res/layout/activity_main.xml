@@ -71,7 +71,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/intro"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
@@ -79,16 +79,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/appbar">
 
-                <com.google.android.material.button.MaterialButton
+                <androidx.cardview.widget.CardView
+                    android:clickable="true"
+                    android:layout_width="0dp"
                     android:id="@+id/lot_qty"
                     app:iconTint="@color/colorPrimary"
                     android:textColor="@color/colorPrimary"
                     app:rippleColor="@color/colorPrimary"
                     android:backgroundTint="@color/colorOnPrimary"
                     style="@style/Widget.MaterialComponents.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:lines="2"
+                    android:layout_height="100dp"
                     android:layout_marginEnd="16dp"
                     android:layout_weight="1"
                     android:gravity="center"
@@ -97,9 +97,23 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/report_accident"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:focusable="true" >
 
-                <com.google.android.material.button.MaterialButton
+                    <TextView
+                        android:id="@+id/lots_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:text="MY LOT LIST"
+                        android:textAlignment="center"
+                        android:textAllCaps="true"
+                        android:textColor="@color/colorPrimary"
+                        android:textStyle="bold"
+                        tools:ignore="RtlCompat" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
                     android:id="@+id/report_accident"
                     app:iconTint="@color/colorPrimary"
                     android:textColor="@color/colorPrimary"
@@ -108,16 +122,101 @@
                     android:backgroundTint="@color/colorOnPrimary"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="100dp"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:lines="2"
-                    android:text="ACCIDENTS (0)"
                     app:icon="@drawable/ic_baseline_line_weight_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/lot_qty"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent" >
+                <TextView
+                    android:textAllCaps="true"
+                    android:id="@+id/accidents_text"
+                    android:textStyle="bold"
+                    android:textAlignment="center"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/colorPrimary"
+                    android:text="ACCIDENTS"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:ignore="RtlCompat" />
+                </androidx.cardview.widget.CardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/receiver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intro">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/receive"
+                    app:iconTint="@color/colorPrimary"
+                    android:textColor="@color/colorPrimary"
+                    app:rippleColor="@color/colorPrimary"
+                    android:backgroundTint="@color/colorOnPrimary"
+                    android:clickable="true"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:lines="2"
+                    android:layout_marginEnd="16dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/offload"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:focusable="true">
+                    <TextView
+                        android:textAllCaps="true"
+                        android:id="@+id/receive_text"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/colorPrimary"
+                        android:text="RECEIVE"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:ignore="RtlCompat" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/offload"
+                    app:iconTint="@color/colorPrimary"
+                    android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"
+                    app:rippleColor="@color/colorPrimary"
+                    android:backgroundTint="@color/colorOnPrimary"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:clickable="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/receive"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:focusable="true">
+                    <TextView
+                        android:textAllCaps="true"
+                        android:id="@+id/offload_text"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:gravity="center_vertical"
+                        android:textColor="@color/colorPrimary"
+                        android:text="OFFLOAD"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:ignore="RtlCompat" />
+                </androidx.cardview.widget.CardView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -181,6 +280,6 @@
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!--navigation drawer menu-->
-    <include layout="@layout/layout_navigation" />
+    <include android:visibility="gone" layout="@layout/layout_navigation" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

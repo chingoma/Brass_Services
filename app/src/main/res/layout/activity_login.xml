@@ -115,18 +115,19 @@
 
 
 
-        <com.github.ybq.android.spinkit.SpinKitView
+        <ProgressBar
+            android:visibility="gone"
+            android:id="@+id/spin_kit"
+            app:indicatorColor="@color/colorOnPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:id="@+id/spin_kit"
-            style="@style/SpinKitView.Large.Circle"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            app:SpinKit_Color="@color/colorOnPrimary" />
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

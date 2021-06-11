@@ -1,7 +1,10 @@
 package com.lockminds.brass_services
 
+import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -30,20 +33,25 @@ import com.lockminds.brass_services.Constants.Companion.PHOTO_URL
 import com.lockminds.brass_services.Constants.Companion.POLICY_URL
 import com.lockminds.brass_services.Constants.Companion.TEAM_ADDRESS
 import com.lockminds.brass_services.Constants.Companion.TEAM_EMAIL
+import com.lockminds.brass_services.Constants.Companion.TEAM_ID
 import com.lockminds.brass_services.Constants.Companion.TEAM_NAME
 import com.lockminds.brass_services.Constants.Companion.TEAM_PHONE
+import com.lockminds.brass_services.Constants.Companion.WAREHOUSE
+import com.lockminds.brass_services.database.AppDatabase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var binding: ActivityLoginBinding;
+    lateinit var binding: ActivityLoginBinding
+    lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         val view: View = binding.root
         setContentView(view)
+        sessionManager = SessionManager(this)
         Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
         Tools.setNavigationBarColor(this, R.color.colorPrimaryDark)
         binding.loginBtn.setOnClickListener {
@@ -71,7 +79,6 @@ class LoginActivity : AppCompatActivity() {
         binding.username.isEnabled = false
         binding.password.isClickable = false
         binding.password.isEnabled = false
-
     }
 
     fun enableFunction(){
@@ -83,6 +90,7 @@ class LoginActivity : AppCompatActivity() {
         binding.password.isEnabled = true
     }
 
+    @SuppressLint("HardwareIds")
     fun attemptLogin(){
 
         var focusView: View? = null
@@ -103,10 +111,11 @@ class LoginActivity : AppCompatActivity() {
         if (!cancel) {
             binding.spinKit.visibility = View.VISIBLE
             disableFunctions()
-            val android_id = Secure.getString(applicationContext?.getContentResolver(), Secure.ANDROID_ID)
+            val android_id = Secure.getString(applicationContext?.contentResolver, Secure.ANDROID_ID)
             AndroidNetworking.post(APIURLs.BASE_URL + "login/token")
                 .addBodyParameter("username", binding.username.text.toString())
                 .addBodyParameter("password", binding.password.text.toString())
+                .addBodyParameter("fcm_token", sessionManager.getFCMToken())
                 .addBodyParameter("device_name",android_id)
                 .setTag("token_request")
                 .addHeaders("accept", "application/json")
@@ -125,7 +134,6 @@ class LoginActivity : AppCompatActivity() {
                                     (application as App).user.syncUser(response.user.user_id.toString(),response.user)
                                 }
 
-
                                     val preference = applicationContext?.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE)
                                             ?: return
 
@@ -139,6 +147,9 @@ class LoginActivity : AppCompatActivity() {
                                         putString(EMAIL, response.email)
                                         putString(POLICY_URL, response.policy_url)
                                         putString(TEAM_EMAIL, response.team_email)
+                                        putString(TEAM_NAME, response.team_name)
+                                        putString(TEAM_ID, response.user.team_id)
+                                        putString(WAREHOUSE, response.user.warehouse_id)
                                         putString(TEAM_NAME, response.team_name)
                                         putString(TEAM_PHONE, response.team_phone)
                                         putString(TEAM_ADDRESS, response.team_address)
@@ -177,6 +188,22 @@ class LoginActivity : AppCompatActivity() {
             binding.spinKit.visibility = View.GONE
         }
 
+    }
+
+    protected fun clearAppData() {
+        try {
+            GlobalScope.launch {
+                AppDatabase.getDatabase(applicationContext,this).clearAllTables()
+            }
+
+            if (Build.VERSION_CODES.KITKAT <= Build.VERSION.SDK_INT) {
+                (getSystemService(ACTIVITY_SERVICE) as ActivityManager).clearApplicationUserData()
+            } else {
+                Runtime.getRuntime().exec("pm clear " + applicationContext.packageName)
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
     }
 
 }

@@ -18,12 +18,12 @@ import com.androidnetworking.interfaces.ParsedRequestListener
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.reflect.TypeToken
+import com.lockminds.brass_services.Constants
 import com.lockminds.brass_services.MainActivity
 import com.lockminds.brass_services.R
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.brass_services.worker.AppWorker
 import com.lockminds.libs.constants.APIURLs
-import com.lockminds.brass_services.Constants
 
 class FCMService : FirebaseMessagingService() {
 
@@ -34,15 +34,7 @@ class FCMService : FirebaseMessagingService() {
      */
     // [START receive_message]
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // [START_EXCLUDE]
-        // There are two types of messages data messages and notification messages. Data messages are handled
-        // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
-        // traditionally used with GCM. Notification messages are only received here in onMessageReceived when the app
-        // is in the foreground. When the app is in the background an automatically generated notification is displayed.
-        // When the user taps on the notification they are returned to the app. Messages containing both notification
-        // and data payloads are treated as notification messages. The Firebase console always sends notification
-        // messages. For more see: https://firebase.google.com/docs/cloud-messaging/concept-options
-        // [END_EXCLUDE]
+
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
@@ -88,6 +80,7 @@ class FCMService : FirebaseMessagingService() {
     }
     // [END on_new_token]
 
+
     /**
      * Schedule async work using WorkManager.
      */
@@ -114,39 +107,36 @@ class FCMService : FirebaseMessagingService() {
      * @param token The new token.
      */
     private fun sendRegistrationToServer(token: String?) {
-        val preference = applicationContext?.getSharedPreferences(
-            Constants.PREFERENCE_KEY,
-            Context.MODE_PRIVATE
-        )
-            ?: return
 
-        with(preference.edit()) {
-            putString(Constants.FCM_TOKEN, token)
-            apply()
+        if (token != null) {
+            if(token.isNotEmpty()){
+                val preference = applicationContext?.getSharedPreferences(
+                    Constants.PREFERENCE_KEY,
+                    Context.MODE_PRIVATE
+                )
+                    ?: return
+
+                with(preference.edit()) {
+                    putString(Constants.FCM_TOKEN, token)
+                    apply()
+                }
+
+                AndroidNetworking.post(APIURLs.BASE_URL + "user/update_fcm_token")
+                    .addBodyParameter("fcm_token", token)
+                    .setPriority(Priority.HIGH)
+                    .build()
+                    .getAsParsed(
+                        object : TypeToken<Response?>() {},
+                        object : ParsedRequestListener<Response> {
+
+                            override fun onResponse(response: Response) {}
+
+                            override fun onError(anError: ANError) { }
+
+                        })
+            }
         }
 
-        AndroidNetworking.post(APIURLs.BASE_URL + "user/update_fcm_token")
-            .addBodyParameter("fcm_token", token)
-            .addHeaders("accept", "application/json")
-            .setPriority(Priority.HIGH)
-            .addHeaders("Authorization", "Bearer " + preference.getString(Constants.LOGIN_TOKEN, "false"))
-            .build()
-            .getAsParsed(
-                object : TypeToken<Response?>() {},
-                object : ParsedRequestListener<Response> {
-
-                    override fun onResponse(response: Response) {
-                        if (response.getStatus()) {
-
-                        } else {
-
-                        }
-
-                    }
-
-                    override fun onError(anError: ANError) { }
-
-                })
     }
 
     /**

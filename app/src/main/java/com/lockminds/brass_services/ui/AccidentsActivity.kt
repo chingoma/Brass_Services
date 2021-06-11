@@ -143,9 +143,6 @@ class AccidentsActivity : BaseActivity() {
 
     private fun syncAccidents(){
         AndroidNetworking.get(APIURLs.BASE_URL + "get_accidents")
-            .setTag("lots")
-            .addHeaders("accept", "application/json")
-            .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
             .setPriority(Priority.HIGH)
             .setPriority(Priority.LOW)
             .build()
@@ -210,7 +207,7 @@ class AccidentsActivity : BaseActivity() {
 
         val description = dialog.findViewById<EditText>(R.id.description)
         val location = dialog.findViewById<EditText>(R.id.location)
-        val spinKitView = dialog.findViewById<SpinKitView>(R.id.spin_kit)
+        val spinKitView = dialog.findViewById<ProgressBar>(R.id.spin_kit)
         (dialog.findViewById<View>(R.id.bt_cancel) as AppCompatButton).setOnClickListener { dialog.dismiss() }
         (dialog.findViewById<View>(R.id.bt_submit) as AppCompatButton).setOnClickListener {
 
@@ -241,8 +238,6 @@ class AccidentsActivity : BaseActivity() {
                     .addBodyParameter("date", date)
                     .addBodyParameter("description", description.text.toString())
                     .addBodyParameter("location", location.text.toString())
-                    .addHeaders("accept", "application/json")
-                    .addHeaders("Authorization", "Bearer " + sessionManager.getLoginToken())
                     .setPriority(Priority.HIGH)
                     .build()
                     .getAsObject(

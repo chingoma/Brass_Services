@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Brass Services</string>
     <string name="menu_logout">Logout</string>
     <string name="enter_password">Enter Password</string>
@@ -40,8 +40,10 @@
     <string name="unknown_geofence_error">
         Unknown error: the Geofence service is not available now
     </string>
+    <string name="content_text">You found a clue <xliff:g id="geofence_location">%1$s</xliff:g>.</string>
     <string name="location_required_error">Location services must be enabled for Attendance to function.</string>
-
+    <string name="ferry_building_hint">Go to Placidius\'s  Office</string>
+    <string name="ferry_building_location">at the Placidius Office</string>
     <string name="geofences_not_removed">Geofences not removed.</string>
     <string name="geofences_not_added">Problem in adding geofences.</string>
     <string name="insufficient_permissions">Insufficient permissions.</string>
@@ -91,4 +93,7 @@
     <string name="service_not_available">Sorry, the service is not available</string>
     <string name="retry">Retry</string>
     <string name="coordinate_not_found">Coordinate not found</string>
+
+    <string name="notification_channel_description">Office status notification</string>
+    <string name="channel_name">Office Status</string>
 </resources>

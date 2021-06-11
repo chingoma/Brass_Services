@@ -12,9 +12,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(entities = [
-    Lot::class,CheckPoint::class,Attendance::class,AttendanceRemoteKeys::class,
-    CheckPointActions::class,CheckPointHistory::class,User::class,Permissions::class,
-    Accident::class,AccidentGallery::class, Office::class], version = 1, exportSchema = true)
+    Lot::class,CheckPoint::class,Attendance::class,AttendanceRemoteKeys::class,ReceiverLot::class,Reasons::class,
+    CheckPointActions::class,CheckPointHistory::class,User::class,Permissions::class,ReceiverLotRemoteKeys::class,
+    OffloadLot::class,
+    Accident::class,AccidentGallery::class, Office::class, CurrentOffice::class], version = 1, exportSchema = true)
 
  abstract class AppDatabase: RoomDatabase() {
 
@@ -27,7 +28,11 @@ import kotlinx.coroutines.launch
     abstract fun checkPointActionDao(): CheckPointActionDao
     abstract fun attendanceDao(): AttendanceDao
     abstract fun userDao(): UserDao
+    abstract fun currentOfficeDao(): CurrentOfficeDao
     abstract fun permissionsDao(): PermissionDao
+    abstract fun receiverLotDao(): ReceiverLotDao
+    abstract fun offloadLotDao(): OffloadLotDao
+    abstract fun reasonDao(): ReasonsDao
 
 
     companion object{

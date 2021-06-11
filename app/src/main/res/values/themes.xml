@@ -25,7 +25,7 @@
         <item name="android:textColorPrimary">@color/colorPrimaryText</item>
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <!-- Secondary brand color. -->
-
+        <item name="android:colorControlActivated">@color/colorOnPrimary</item>
         <item name="colorSecondary">@color/colorOnPrimary</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
         <item name="colorOnSecondary">@color/colorPrimaryDark</item>
@@ -41,7 +41,7 @@
     </style>
 
     <style name="ThemeOverlay.App.DatePicker" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="colorPrimary">@color/colorOnPrimary</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
@@ -151,6 +151,7 @@
 <!--Theme for date picker dialog-->
 <style name="DatePickerThemeLight" parent="Theme.AppCompat.Light.Dialog.Alert">
     <item name="android:textColorPrimary">@color/colorOnPrimary</item>
+    <item name="android:colorControlActivated">@color/colorPrimary</item>
     <item name="colorPrimary">@color/colorOnPrimary</item>
     <item name="colorPrimaryDark">@color/colorOnPrimary</item>
     <item name="colorAccent">@color/colorOnPrimary</item>
@@ -303,5 +304,7 @@
     <item name="android:minWidth">48dp</item>
     <item name="android:minHeight">48dp</item>
 </style>
+
+
 
 </resources>

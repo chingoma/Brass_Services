@@ -23,7 +23,9 @@ data class User(
     val profile_photo_path: String?,
     val created_at: String?,
     val updated_at: String?,
-    val deleted_at: String?
+    val deleted_at: String?,
+    val warehouse_id: String?,
+    val team_id: String?,
 ): Parcelable{
 
     constructor(parcel: Parcel) : this(
@@ -43,7 +45,9 @@ data class User(
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
-        parcel.readString()
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString(),
     ) {
     }
 
@@ -65,6 +69,8 @@ data class User(
         "",
         "",
         "",
+        "",
+        ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -85,6 +91,8 @@ data class User(
         parcel.writeString(created_at)
         parcel.writeString(updated_at)
         parcel.writeString(deleted_at)
+        parcel.writeString(warehouse_id)
+        parcel.writeString(team_id)
     }
 
     override fun describeContents(): Int {

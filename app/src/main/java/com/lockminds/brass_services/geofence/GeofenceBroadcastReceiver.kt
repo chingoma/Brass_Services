@@ -16,44 +16,32 @@
 
 package com.lockminds.brass_services.geofence
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
+
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
-import com.lockminds.brass_services.ui.AttendanceActivity.Companion.ACTION_GEOFENCE_EVENT
-import com.lockminds.brass_services.ui.AttendanceActivity.Companion.ACTION_GEOFENCE_EVENT_EXIT
+import com.lockminds.brass_services.Constants.Companion.ACTION_GEOFENCE_EVENT
+import com.lockminds.brass_services.Constants.Companion.LOCKMINDS_ACTION_GEOFENCE_EVENT
+import com.lockminds.brass_services.Constants.Companion.LOCKMINDS_ACTION_GEOFENCE_EVENT_ENTERING
+import com.lockminds.brass_services.Constants.Companion.LOCKMINDS_ACTION_GEOFENCE_EVENT_EXIT
+import com.lockminds.brass_services.R
 
 
-/*
- * Triggered by the Geofence.  Since we only have one active Geofence at once, we pull the request
- * ID from the first Geofence, and locate it within the registered landmark data in our
- * GeofencingConstants within GeofenceUtils, which is a linear string search. If we had  very large
- * numbers of Geofence possibilities, it might make sense to use a different data structure.  We
- * then pass the Geofence index into the notification, which allows us to have a custom "found"
- * message associated with each Geofence.
- */
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-
 
         if (intent.action == ACTION_GEOFENCE_EVENT) {
 
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
             if (geofencingEvent.hasError()) {
-                val errorMessage = errorMessage(context, geofencingEvent.errorCode)
-                Log.e(TAG, errorMessage)
                 return
-            }
-
-            if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-                Intent().also { intent ->
-                    intent.action = ACTION_GEOFENCE_EVENT_EXIT
-                    context.sendBroadcast(intent)
-                }
             }
 
             if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
@@ -67,30 +55,55 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                     }
                 }
 
-                // Check geofence against the constants listed in GeofenceUtil.kt to see if the
-                // user has entered any of the locations we track for geofences.
-                val foundIndex = GeofencingConstants.LANDMARK_DATA.indexOfFirst {
-                    it.id == fenceId
-                }
+                val intentData = Intent()
+                intentData.action = LOCKMINDS_ACTION_GEOFENCE_EVENT
+                intentData.putExtra("fenceID", fenceId)
+                intentData.putExtra("track_action", LOCKMINDS_ACTION_GEOFENCE_EVENT_ENTERING)
+                context.sendBroadcast(intentData)
 
-                val office = GeofencingConstants.LANDMARK_DATA.get(foundIndex)
 
-                // Unknown Geofences aren't helpful to us
-                if ( -1 == foundIndex ) {
-                    Log.e(TAG, "Unknown Geofence: Abort Mission " + fenceId)
-                    return
-                }
-
-                Intent().also { intent ->
-                    intent.action = ACTION_GEOFENCE_EVENT
-                    intent.putExtra("office",office.name)
-                    intent.putExtra("coordinate",office.id)
-                    context.sendBroadcast(intent)
-                }
-
+//                val notificationManager = ContextCompat.getSystemService(
+//                    context,
+//                    NotificationManager::class.java
+//                ) as NotificationManager
+//
+//                notificationManager.sendGeofenceEnteredNotification(
+//                    context
+//                )
             }
+
+            if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+
+                val fenceId = when {
+                    geofencingEvent.triggeringGeofences.isNotEmpty() ->
+                        geofencingEvent.triggeringGeofences[0].requestId
+                    else -> {
+                        Log.e(TAG, "No Geofence Trigger Found! Abort mission!")
+                        return
+                    }
+                }
+
+                val intentData = Intent()
+                intentData.action = LOCKMINDS_ACTION_GEOFENCE_EVENT
+                intentData.putExtra("fenceID", fenceId)
+                intentData.putExtra("track_action", LOCKMINDS_ACTION_GEOFENCE_EVENT_EXIT)
+                context.sendBroadcast(intentData)
+
+
+                val notificationManager = ContextCompat.getSystemService(
+                    context,
+                    NotificationManager::class.java
+                ) as NotificationManager
+
+                notificationManager.sendGeofenceEnteredNotification(
+                    context
+                )
+            }
+
         }
     }
+
+
 }
 
 private const val TAG = "GeofenceReceiver"

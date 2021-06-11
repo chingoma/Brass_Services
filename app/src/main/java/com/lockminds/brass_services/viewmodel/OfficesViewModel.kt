@@ -14,6 +14,8 @@ class OfficesViewModel( val repo: OfficeRepository) : ViewModel() {
 
     fun allItems(escorter: String): LiveData<List<Office>> = repository.getItems().asLiveData()
 
+    fun getOffice(office: String): Office = repository.getOffice(office)
+
 }
 
 class OfficesViewModelFactory(private val repo: OfficeRepository) : ViewModelProvider.Factory {

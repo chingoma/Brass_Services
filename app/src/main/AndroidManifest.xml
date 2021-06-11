@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.lockminds.brass_services">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -19,8 +20,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BrassServices"
-        android:usesCleartextTraffic="true">
-        <activity android:name=".ui.AttendanceActivity"></activity>
+        android:usesCleartextTraffic="true"
+        tools:targetApi="m">
+        <activity android:name=".ui.ReceiveActivity" />
+        <activity android:name=".ui.OffloadActivity" />
+        <activity android:name=".ui.AttendanceActivity" />
         <activity android:name=".ui.AccidentsActivity" />
         <activity android:name=".ui.AccidentActivity" />
         <activity android:name=".ui.LotsActivity" />
@@ -39,6 +43,7 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />

@@ -17,6 +17,7 @@
 package com.lockminds.brass_services.mediator
 
 import android.content.Context
+import android.provider.Settings
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -78,7 +79,8 @@ class AttendanceRemoteMediator(
 
         try {
             val sessionManager = SessionManager(context)
-            val apiResponse = service.getAttendance(token = "Bearer ${sessionManager.getLoginToken()}",apiQuery, page, state.config.pageSize)
+            val deviceId = Settings.Secure.getString(context.applicationContext?.contentResolver, Settings.Secure.ANDROID_ID)
+            val apiResponse = service.getAttendance( deviceId,token = "Bearer ${sessionManager.getLoginToken()}",apiQuery, page, state.config.pageSize)
 
             val repos = apiResponse.items
             val endOfPaginationReached = repos.isEmpty()
