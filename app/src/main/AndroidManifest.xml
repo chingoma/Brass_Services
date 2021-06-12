@@ -22,6 +22,7 @@
         android:theme="@style/Theme.BrassServices"
         android:usesCleartextTraffic="true"
         tools:targetApi="m">
+        <activity android:name=".PermissionsActivity"></activity>
         <activity android:name=".ui.ReceiveActivity" />
         <activity android:name=".ui.OffloadActivity" />
         <activity android:name=".ui.AttendanceActivity" />
@@ -43,7 +44,6 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
@@ -73,12 +73,18 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <receiver android:exported="true" android:name=".geofence.GeofenceBroadcastReceiver"/>
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCvPxK7GS1dgFSdew3n8-S_zEArFwbh4AU"/>
+
+        <receiver
+            android:name=".geofence.GeofenceBroadcastReceiver"
+            android:exported="true" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCvPxK7GS1dgFSdew3n8-S_zEArFwbh4AU" />
+
         <service
             android:name=".services.FetchAddressIntentService"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
-
 
 </manifest>

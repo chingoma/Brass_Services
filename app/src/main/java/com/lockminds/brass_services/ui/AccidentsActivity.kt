@@ -105,7 +105,9 @@ class AccidentsActivity : BaseActivity() {
 
         // open/close drawer at start
         binding.navIcon.setOnClickListener{
-            drawer.openDrawer(GravityCompat.START)
+            //drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@AccidentsActivity, ProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 

@@ -57,12 +57,11 @@
     <string name="geofence_entered">Geofence entered.</string>
     <string name="geofence_over">You have found the treasure! Congratulations!</string>
 
-    <string
-        name="permission_rationale">Location permission needed for core functionality of Check In or Out.
+    <string name="permission_rationale">Location permission needed for core functionality of Check In or Out.
     </string>
 
     <string name="permission_denied_explanation">
-        You need to grant location permission in order to Check In or Out.
+        You need to grant location permission in order for the app to function properly.
     </string>
 
     <!-- Buttons strings -->

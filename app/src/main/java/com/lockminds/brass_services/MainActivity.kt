@@ -8,25 +8,18 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.common.Priority
 import com.androidnetworking.error.ANError
 import com.androidnetworking.interfaces.ParsedRequestListener
-import com.bumptech.glide.Glide
 import com.lockminds.brass_services.LotDetailsActivity.Companion.createIntent
 import com.lockminds.brass_services.adapter.LotsAdapter
 import com.lockminds.brass_services.databinding.ActivityMainBinding
 import com.lockminds.brass_services.model.Accident
 import com.lockminds.brass_services.model.Lot
-import com.lockminds.brass_services.ui.AccidentsActivity
-import com.lockminds.brass_services.ui.LotsActivity
-import com.lockminds.brass_services.ui.OffloadActivity
-import com.lockminds.brass_services.ui.ReceiveActivity
-import com.lockminds.brass_services.viewmodel.AccidentViewModel
-import com.lockminds.brass_services.viewmodel.AccidentViewModelFactory
+import com.lockminds.brass_services.ui.*
 import com.lockminds.brass_services.viewmodel.LotsViewModel
 import com.lockminds.brass_services.viewmodel.LotsViewModelFactory
 import com.lockminds.libs.constants.APIURLs
@@ -49,12 +42,11 @@ class MainActivity : BaseActivity() {
         setContentView(view)
         initComponent()
         initNavigationMenu()
-        binding.lytNoConnection.isVisible = true
         setAdapter()
         userViewModel.getUser(sessionManager.getUserId().toString()).observe(this){
             it?.let {
                 binding.toolbar.title = it.name
-                binding.toolbar.subtitle = it.reg_number
+                binding.toolbar.subtitle = it.email
             }
         }
 
@@ -111,6 +103,14 @@ class MainActivity : BaseActivity() {
             startActivity(intent)
         }
 
+        binding.reports.setOnClickListener {
+            toast("upcoming feature")
+        }
+
+        binding.attendance.setOnClickListener {
+            val intent = Intent(this@MainActivity, AttendanceActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun initNavigationMenu() {
@@ -128,8 +128,17 @@ class MainActivity : BaseActivity() {
 
         // open/close drawer at start
         binding.navIcon.setOnClickListener{
-            drawer.openDrawer(GravityCompat.START)
+         //   drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@MainActivity, ProfileActivity::class.java)
+            startActivity(intent)
         }
+
+        binding.toolbar.setOnClickListener{
+            //   drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@MainActivity, ProfileActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun setAdapter() {

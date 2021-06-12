@@ -26,11 +26,11 @@ import com.lockminds.brass_services.*
 import com.lockminds.brass_services.adapter.CheckPointSpinnerAdapter
 import com.lockminds.brass_services.adapter.LoadStateAdapter
 import com.lockminds.brass_services.adapter.ReasonsSpinnerAdapter
-import com.lockminds.brass_services.adapter.ReceiverLotPagedAdapter
+import com.lockminds.brass_services.adapter.OffloadLotPagedAdapter
 import com.lockminds.brass_services.databinding.ActivityOffloadBinding
 import com.lockminds.brass_services.model.CheckPointActions
 import com.lockminds.brass_services.model.Reasons
-import com.lockminds.brass_services.model.ReceiverLot
+import com.lockminds.brass_services.model.OffloadLot
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.brass_services.viewmodel.*
 import com.lockminds.libs.constants.APIURLs
@@ -52,15 +52,15 @@ class OffloadActivity : BaseActivity() {
     lateinit var binding: ActivityOffloadBinding
     private lateinit var reasonsSpinnerAdapter: ReasonsSpinnerAdapter
 
-    private lateinit var viewModel: ReceiverLotPagedViewModel
+    private lateinit var viewModel: OffloadLotPagedViewModel
 
     private val reasonsViewModel by viewModels<ReasonsViewModel> {
         ReasonsViewModelFactory((application as App).reasons)
     }
 
     @ExperimentalPagingApi
-    private val adapter = ReceiverLotPagedAdapter(this){ receiverLot -> receiverLotClickListener(
-        receiverLot
+    private val adapter = OffloadLotPagedAdapter(this){ offloadLot -> offloadLotClickListener(
+        offloadLot
         )}
 
     private var searchJob: Job? = null
@@ -82,8 +82,8 @@ class OffloadActivity : BaseActivity() {
         binding = ActivityOffloadBinding.inflate(layoutInflater)
         val view: View  = binding.root
         setContentView(view)
-        viewModel = ViewModelProvider(this, Injection.receiverLotPagedViewModelFactory((this)))
-            .get(ReceiverLotPagedViewModel::class.java)
+        viewModel = ViewModelProvider(this, Injection.offloadLotPagedViewModelFactory((this)))
+            .get(OffloadLotPagedViewModel::class.java)
         initComponent()
         initNavigationMenu()
         initAdapter()
@@ -98,7 +98,7 @@ class OffloadActivity : BaseActivity() {
     }
 
     @ExperimentalPagingApi
-    private fun receiverLotClickListener(lot: ReceiverLot) {
+    private fun offloadLotClickListener(lot: OffloadLot) {
 
         if(actionJob){
             toast("Please wait...")
@@ -181,14 +181,15 @@ class OffloadActivity : BaseActivity() {
 
         drawer.addDrawerListener(toggle)
 
-        // open/close drawer at start
-        binding.navIcon.setOnClickListener{
-            drawer.openDrawer(GravityCompat.START)
+        binding.toolbar.setOnClickListener{
+            //   drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@OffloadActivity, ProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 
     @ExperimentalPagingApi
-    private fun showActionDialog(lot: ReceiverLot) {
+    private fun showActionDialog(lot: OffloadLot) {
         val materialDateBuilder: MaterialDatePicker.Builder<*> = MaterialDatePicker.Builder.datePicker()
 
         materialDateBuilder.setTitleText("SELECT RECEIVING DATE ")
@@ -237,7 +238,7 @@ class OffloadActivity : BaseActivity() {
 
         heading.text = Tools.fromHtml("${lot.lot_no}")
         title.text = Tools.fromHtml("Weight = ${lot.mine_gross_weight?.let { round(it.toDouble()) }}")
-
+        weight.setText("${lot.mine_gross_weight?.let { round(it.toDouble()) }}")
         datePicker.setOnClickListener {
             materialDatePicker.show(supportFragmentManager, "MATERIAL_DATE_PICKER")
         }
@@ -309,6 +310,7 @@ class OffloadActivity : BaseActivity() {
             .getAsObjectList(
                 Reasons::class.java,
                 object : ParsedRequestListener<List<Reasons>> {
+
                     override fun onResponse(data: List<Reasons>) {
                         val itemsData: List<Reasons> = data
                         GlobalScope.launch {

@@ -189,9 +189,10 @@ class ReceiveActivity : BaseActivity() {
 
         drawer.addDrawerListener(toggle)
 
-        // open/close drawer at start
-        binding.navIcon.setOnClickListener{
-            drawer.openDrawer(GravityCompat.START)
+        binding.toolbar.setOnClickListener{
+            //   drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@ReceiveActivity, ProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 

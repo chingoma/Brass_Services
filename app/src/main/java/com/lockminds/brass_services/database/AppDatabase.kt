@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 @Database(entities = [
     Lot::class,CheckPoint::class,Attendance::class,AttendanceRemoteKeys::class,ReceiverLot::class,Reasons::class,
     CheckPointActions::class,CheckPointHistory::class,User::class,Permissions::class,ReceiverLotRemoteKeys::class,
-    OffloadLot::class,
+    OffloadLot::class,OffloadLotRemoteKeys::class,
     Accident::class,AccidentGallery::class, Office::class, CurrentOffice::class], version = 1, exportSchema = true)
 
  abstract class AppDatabase: RoomDatabase() {

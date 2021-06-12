@@ -20,7 +20,7 @@ import com.lockminds.brass_services.databinding.ActivityUpdateProfileBinding
 import com.lockminds.brass_services.reponses.Response
 import com.lockminds.libs.constants.APIURLs
 
-class UpdateProfileActivity : AppCompatActivity() {
+class UpdateProfileActivity : BaseActivity() {
 
     lateinit var binding: ActivityUpdateProfileBinding
 
@@ -33,31 +33,27 @@ class UpdateProfileActivity : AppCompatActivity() {
         initComponents()
     }
 
-    fun initControllers(){
+    private fun initControllers(){
         setSupportActionBar(binding.toolbar)
         supportActionBar!!.title = null
         supportActionBar!!.setDisplayHomeAsUpEnabled(false)
         Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
+        userViewModel.getUser(sessionManager.getUserId().toString()).observe(this){ user ->
+
+            user.profile_photo_path?.let {
+                Glide
+                    .with(applicationContext)
+                    .load(user.profile_photo_path)
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .into(binding.image)
+            }
+            binding.name.setText(user.name.toString())
+            binding.phoneNumber.setText(user.phone_number.toString())
+        }
     }
 
     private fun initComponents() {
-
-        val preference = applicationContext?.getSharedPreferences(
-            Constants.PREFERENCE_KEY,
-            Context.MODE_PRIVATE
-        )
-
-        if (preference != null) {
-            binding.name.setText(preference.getString(Constants.NAME,""))
-            binding.phoneNumber.setText(preference.getString(Constants.PHONE_NUMBER,""))
-
-            Glide
-                .with(applicationContext)
-                .load(preference.getString(Constants.PHOTO_URL, ""))
-                .centerCrop()
-                .placeholder(R.mipmap.ic_launcher_round)
-                .into(binding.image)
-        }
 
         binding.submit.setOnClickListener {
             attemptUpdate()
@@ -131,38 +127,17 @@ class UpdateProfileActivity : AppCompatActivity() {
 
                             override fun onResponse(response: Response) {
                                 binding.spinKit.visibility = View.GONE
-                                if (response.getStatus()) {
-
-                                    val preference = applicationContext?.getSharedPreferences(
-                                        Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
-                                        ?: return
-
-                                    with(preference.edit()) {
-                                        putString(Constants.NAME, binding.name.text.toString())
-                                        putString(Constants.PHONE_NUMBER, binding.phoneNumber.text.toString())
-                                        apply()
-                                    }
-
-                                    val mySnackbar = Snackbar.make(binding.lytParent, getString(R.string.success), Snackbar.LENGTH_SHORT)
-                                    mySnackbar.show()
-
-                                    val intent = Intent(this@UpdateProfileActivity, ProfileActivity::class.java)
-                                    startActivity(intent)
-                                    finish()
-
-                                } else {
-                                    val mySnackbar = Snackbar.make(binding.lytParent, response.message, Snackbar.LENGTH_LONG)
-                                    mySnackbar.show()
-                                    enableFunction()
-                                }
-
+                                toast(response.message)
+                                val intent = Intent(this@UpdateProfileActivity, ProfileActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                                syncProfile()
                             }
 
                             override fun onError(anError: ANError) {
                                 enableFunction()
                                 binding.spinKit.visibility = View.GONE
-                                val mySnackbar = Snackbar.make(binding.lytParent, anError.errorDetail, Snackbar.LENGTH_SHORT)
-                                mySnackbar.show()
+                                toast(anError.errorDetail)
                             }
 
                         })

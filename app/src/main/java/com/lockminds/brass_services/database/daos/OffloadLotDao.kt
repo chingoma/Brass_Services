@@ -12,7 +12,7 @@ interface OffloadLotDao {
     suspend fun clearRemoteKeys()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertKeys(orders: List<ReceiverLotRemoteKeys>)
+    suspend fun insertKeys(orders: List<OffloadLotRemoteKeys>)
 
     @Query("SELECT * FROM offload_lot_remote_keys WHERE id = :id ORDER BY id DESC")
     suspend fun getRemoteKey(id: String): OffloadLotRemoteKeys

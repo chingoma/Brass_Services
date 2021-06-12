@@ -36,25 +36,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
+                    <com.mikhaellopez.circularimageview.CircularImageView
+                        app:civ_border="true"
+                        app:civ_border_width="1dp"
+                        app:civ_border_color="@color/colorOnPrimary"
                         android:id="@+id/nav_icon"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="16dp"
-                        android:src="@drawable/ic_baseline_line_weight_24"
+                        android:src="@mipmap/ic_launcher"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:tint="@color/colorOnPrimary" />
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <androidx.appcompat.widget.Toolbar
                         android:id="@+id/toolbar"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="16dp"
                         app:layout_collapseMode="pin"
@@ -62,8 +64,8 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/nav_icon"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:subtitleTextColor="@color/white"
-                        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+                        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                        app:subtitleTextColor="@color/material_gray_500" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.appbar.AppBarLayout>

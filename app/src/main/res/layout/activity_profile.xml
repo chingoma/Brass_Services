@@ -116,11 +116,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:background="@color/transparent"
-                        android:tint="@color/colorOnPrimary"
-                        app:srcCompat="@drawable/ic_person_outline" />
+                        app:srcCompat="@drawable/ic_person_outline"
+                        app:tint="@color/colorOnPrimary" />
 
                     <TextView
-                        android:id="@+id/name_1"
+                        android:id="@+id/reg_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_large"
@@ -151,8 +151,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:background="@color/transparent"
-                        android:tint="@color/colorOnPrimary"
-                        app:srcCompat="@drawable/ic_baseline_phone_24" />
+                        app:srcCompat="@drawable/ic_baseline_phone_24"
+                        app:tint="@color/colorOnPrimary" />
 
                     <TextView
                         android:id="@+id/phone_number"
@@ -189,8 +189,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:background="@color/transparent"
-                        android:tint="@color/colorOnPrimary"
-                        app:srcCompat="@drawable/ic_baseline_privacy_tip_24" />
+                        app:srcCompat="@drawable/ic_baseline_privacy_tip_24"
+                        app:tint="@color/colorOnPrimary" />
 
                     <TextView
                         android:text="@string/privacy_policy"
@@ -222,8 +222,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:background="@color/transparent"
-                        android:tint="@color/colorOnPrimary"
-                        app:srcCompat="@drawable/ic_baseline_info_24" />
+                        app:srcCompat="@drawable/ic_baseline_info_24"
+                        app:tint="@color/colorOnPrimary" />
 
                     <TextView
                         android:text="@string/menu_about"
@@ -255,8 +255,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:background="@color/transparent"
-                        android:tint="@color/colorOnPrimary"
-                        app:srcCompat="@drawable/ic_baseline_security_24" />
+                        app:srcCompat="@drawable/ic_baseline_security_24"
+                        app:tint="@color/colorOnPrimary" />
 
                     <TextView
                         android:text="@string/menu_change_password"
@@ -287,8 +287,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:background="@color/transparent"
-                        android:tint="@color/colorOnPrimary"
-                        app:srcCompat="@drawable/ic_baseline_login_24" />
+                        app:srcCompat="@drawable/ic_baseline_login_24"
+                        app:tint="@color/colorOnPrimary" />
 
                     <TextView
                         android:text="@string/menu_logout"
@@ -316,7 +316,7 @@
     </androidx.core.widget.NestedScrollView>
 
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:visibility="gone"
         android:id="@+id/fab"
         android:layout_width="wrap_content"
@@ -326,8 +326,11 @@
         android:tint="@color/colorPrimary"
         app:backgroundTint="@color/colorOnPrimary"
         app:fabSize="normal"
+        android:text="Update"
         app:layout_anchor="@id/nested_scroll_view"
         app:layout_anchorGravity="bottom|right|end"
-        app:srcCompat="@drawable/ic_baseline_edit_primary24" />
+        app:icon="@drawable/ic_person_outline"
+        app:srcCompat="@drawable/ic_baseline_edit_primary24"
+        android:focusable="true" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

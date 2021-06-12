@@ -6,6 +6,7 @@ import com.lockminds.brass_services.database.AppDatabase
 import com.lockminds.brass_services.database.daos.UserDao
 import com.lockminds.brass_services.database.repositories.*
 import com.lockminds.brass_services.retrofit.AttendanceService
+import com.lockminds.brass_services.retrofit.OffloadLotService
 import com.lockminds.brass_services.retrofit.ReceiverLotService
 import com.lockminds.brass_services.viewmodel.*
 
@@ -56,4 +57,11 @@ object Injection {
         return ReceiverLotPagedViewModelFactory(receiverLotPagedRepository(context))
     }
 
+    private fun offloadLotPagedRepository(context: Context): OffloadLotPagedRepository {
+        return OffloadLotPagedRepository(OffloadLotService.create(), AppDatabase.getInstance(context))
+    }
+
+    fun offloadLotPagedViewModelFactory(context: Context): ViewModelProvider.Factory {
+        return OffloadLotPagedViewModelFactory(offloadLotPagedRepository(context))
+    }
 }

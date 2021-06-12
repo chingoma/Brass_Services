@@ -35,8 +35,8 @@ class Constants{
         @JvmField val POLICY_URL = "policy_url"
         @JvmField val CHANGE_DETAILS = "change_details"
         @JvmField val CHANGE_PICTURE = "change_picture"
-        const val GEOFENCE_RADIUS_IN_METERS = 50F
-        const val GEOFENCE_EXPIRATION_IN_MILLISECONDS = 1000000L
+        const val GEOFENCE_RADIUS_IN_METERS = 100F
+        const val GEOFENCE_EXPIRATION_IN_MILLISECONDS = 86400000L
         const val FCM_TOKEN = "fcm_token"
         const val INTENT_PARAM_1 = "intent_param_1"
         const val SUCCESS_RESULT = 0

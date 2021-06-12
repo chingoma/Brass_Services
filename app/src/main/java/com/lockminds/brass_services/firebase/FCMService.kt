@@ -22,6 +22,7 @@ import com.lockminds.brass_services.Constants
 import com.lockminds.brass_services.MainActivity
 import com.lockminds.brass_services.R
 import com.lockminds.brass_services.reponses.Response
+import com.lockminds.brass_services.ui.AttendanceActivity
 import com.lockminds.brass_services.worker.AppWorker
 import com.lockminds.libs.constants.APIURLs
 
@@ -36,15 +37,9 @@ class FCMService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
 
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: ${remoteMessage.from}")
-
         // Check if message contains a data payload.
         if (remoteMessage.data.isNotEmpty()) {
-
-            Log.d(TAG, "Message data payload: ${remoteMessage.data}")
-
+            Log.d(TAG, "Message Data Body: ${remoteMessage.data}")
             if (remoteMessage.data["worker"].equals("true")) {
                 // For long-running tasks (10 seconds or more) use WorkManager.
                 scheduleJob(remoteMessage)
@@ -95,7 +90,7 @@ class FCMService : FirebaseMessagingService() {
      * Handle time allotted to BroadcastReceivers.
      */
     private fun handleNow(remoteMessage: RemoteMessage) {
-        sendNotification(remoteMessage)
+        sendNotificationData(remoteMessage)
     }
 
     /**
@@ -146,6 +141,48 @@ class FCMService : FirebaseMessagingService() {
      */
     private fun sendNotification(remoteMessage: RemoteMessage) {
         val intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+            PendingIntent.FLAG_ONE_SHOT)
+
+        val channelId = getString(R.string.default_notification_channel_id)
+        val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_notification_icon)
+            .setContentTitle(remoteMessage.data["title"])
+            .setContentText(remoteMessage.data["message"])
+            .setAutoCancel(true)
+            .setSound(defaultSoundUri)
+            .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        // Since android Oreo notification channel is needed.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId,
+                getString(R.string.default_notification_channel_id_string),
+                NotificationManager.IMPORTANCE_HIGH)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
+    }
+
+    private fun sendNotificationData(remoteMessage: RemoteMessage) {
+        val data = remoteMessage.data
+        val intent = when (data["type"]) {
+            "coordinate_request" -> {
+                Intent(this, AttendanceActivity::class.java)
+            }
+            "device_request" -> {
+                Intent(this, MainActivity::class.java)
+            }
+            else -> {
+                Intent(this, MainActivity::class.java)
+            }
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
             PendingIntent.FLAG_ONE_SHOT)

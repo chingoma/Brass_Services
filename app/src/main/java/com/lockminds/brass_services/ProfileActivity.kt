@@ -114,6 +114,7 @@ class ProfileActivity : BaseActivity() {
 
         userViewModel.getUser(sessionManager.getUserId().toString()).observe(this){ user ->
             binding.name.text = user.name
+            binding.regNumber.text = user.reg_number
             binding.phoneNumber.text = user.phone_number
             binding.contact.text = user.email
             user.change_details?.let {
@@ -139,13 +140,11 @@ class ProfileActivity : BaseActivity() {
             binding.fab.setOnClickListener {
                 val intent = Intent(this@ProfileActivity, UpdateProfileActivity::class.java)
                 startActivity(intent)
-                finish()
             }
 
             binding.changePassword.setOnClickListener {
                 val intent = Intent(this@ProfileActivity, ChangePasswordActivity::class.java)
                 startActivity(intent)
-                finish()
             }
 
             binding.image.setOnClickListener {
@@ -173,7 +172,6 @@ class ProfileActivity : BaseActivity() {
                 }
             }
 
-
         }
     }
 
@@ -200,7 +198,7 @@ class ProfileActivity : BaseActivity() {
 
                                         override fun onResponse(response: Response) {
                                             binding.spinKit.visibility = View.GONE
-                                            if (response.getStatus()) {
+                                            if (response.status) {
 
                                                 val preference = applicationContext?.getSharedPreferences(
                                                     Constants.PREFERENCE_KEY, Context.MODE_PRIVATE)
