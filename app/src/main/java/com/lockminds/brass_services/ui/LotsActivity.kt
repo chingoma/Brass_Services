@@ -1,10 +1,12 @@
 package com.lockminds.brass_services.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.androidnetworking.AndroidNetworking
@@ -38,6 +40,36 @@ class LotsActivity : BaseActivity() {
         binding.lytNoConnection.isVisible = true
         setAdapter()
         syncLots()
+        initNavigationMenu()
+
+
+    }
+    private fun initNavigationMenu() {
+        val drawer = binding.drawerLayout
+        val toggle: ActionBarDrawerToggle = object : ActionBarDrawerToggle(
+            this,
+            drawer,
+            binding.toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        ) {
+        }
+
+        drawer.addDrawerListener(toggle)
+
+        // open/close drawer at start
+        binding.navIcon.setOnClickListener{
+            //   drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@LotsActivity, ProfileActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.toolbar.setOnClickListener{
+            //   drawer.openDrawer(GravityCompat.START)
+            val intent = Intent(this@LotsActivity, ProfileActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun initComponent(){
@@ -45,29 +77,8 @@ class LotsActivity : BaseActivity() {
         supportActionBar!!.title = null
         supportActionBar!!.setDisplayHomeAsUpEnabled(false)
         Tools.setSystemBarColor(this, R.color.colorPrimaryDark)
-        binding.toolbar.title = sessionManager.getName()
-        binding.toolbar.subtitle = "Lot List"
-
-        Glide
-            .with(applicationContext)
-            .load(sessionManager.getPhotoUrl())
-            .centerCrop()
-            .placeholder(R.mipmap.ic_launcher_round)
-            .into(binding.image)
-            //        binding.searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            //            override fun onQueryTextSubmit(query: String?): Boolean {
-            //                // filter recycler view when query submitted
-            //                lotsAdapter?.filter?.filter(query)
-            //                return false
-            //            }
-            //
-            //            override fun onQueryTextChange(query: String?): Boolean {
-            //                // filter recycler view when text is changed
-            //                lotsAdapter?.filter?.filter(query)
-            //                return false
-            //            }
-            //        })
-
+        binding.toolbar.title = "My lot list"
+        binding.toolbar.subtitle = "list of all lots"
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
